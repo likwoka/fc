@@ -27,14 +27,15 @@ fn main() {
 //}
 
 enum Temp {
-    F(f32),
-    C(f32),
-    Unknown(f32),
+    F(f64),
+    C(f64),
+    Unknown(f64),
 }
 
 
 fn to_c(input: Temp) -> Temp {
-    
+    let out = (input - 32.0) / 1.8;
+    Temp::C(out)
 }
 
 // Q1: can I do specific method for different value of enum?
@@ -56,11 +57,11 @@ fn smoke3() {
     }
 }
 
-fn f_to_c(f: f32) -> f32 {
+fn f_to_c(f: f64) -> f64 {
     (f - 32.0) / 1.8
 }
 
-fn c_to_f(c: f32) -> f32 {
+fn c_to_f(c: f64) -> f64 {
     c * 1.8 + 32.0
 }
 
