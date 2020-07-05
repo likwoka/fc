@@ -1,76 +1,95 @@
-// c = (f - 32) / 1.8
+//! fc -- Convert temperature between Fahrenheit and Celsius
+use std::{env, io};
 
-/// # Usage:
-/// fc 32C   => 89.6F
-/// fc 32c   => 89.6F
-/// fc 81f   => 27.2C
-/// fc 81F   => 21.2C
-/// fc 32    => 32C => 89.6F
-///             32F => 0C
+const HELP_MSG: &str = r"fc -- convert temperature between Fahrenheit and Celsius
+Usage:
+fc 32C   # output: 32C => 89.6F
+fc 32c   # output: 32C => 89.6F
+fc 81f   # output: 81F => 27.2C
+fc 81F   # output: 81F => 21.2C
+fc 32    # output: 32C => 89.6F; 32F => 0C
+fc 81    # output: 81F => 27.2C; 81C => 177.8F
+fc -f    # print formula
+fc -h    # print this help message";
 
-// Take command line input
-// Print output to command line
-// Unit tests
-use std::env;
-use std::io;
-
-fn main() {
-    let args: Vec<String> = env::args().collect();
-    let temp = &args[1];
-
-    println!("{:?}", args);
-//    println!("Hello, world!");
+enum OutputMode {
+    PrintHelp,
+    PrintForula,
+    TemperatureWithUnit(Temperature),
+    TemperatureWithoutUnit(Temperature)
 }
 
+enum MyError {
+    WrongSyntax
+}
 
-//fn parse_temp_and_unit(arg: String) -> (&str, &str) {
-//}
-
-enum Temp {
+enum Temperature {
     F(f64),
     C(f64),
-    Unknown(f64),
+    Unknown(f64)
 }
 
-
-fn to_c(input: Temp) -> Temp {
-    let out = (input - 32.0) / 1.8;
-    Temp::C(out)
+enum TOut {
+    Single(Temperature),
+    Double(Temperature, Temperature)
 }
 
-// Q1: can I do specific method for different value of enum?
-// Temp::F.to_c(...) -> Temp
-// Temp::C.to_f(...) -> Temp
-// Temp::Unknown.f_to_c(...) -> Temp
-// Temp::Unknown.c_to_f(...) -> Temp
-// Temp::Unknown.to(...) -> Vec<Temp>
-
-#[test]
-fn smoke3() {
-    let input = Temp::C(32.0);
+fn convert(input: Temperature) -> TOut {
     match input {
-        Temp::F => to_c(input),
-        Temp::C => to_f(input),
-        Temp::Unknown => {
-            to_c(input), to_f(input)
+        Temperature::F(f) => {
+            TOut::Single(Temperature::C((f - 32.0) / 1.8))
+        },
+        Temperature::C(c) => {
+            TOut::Single(Temperature::F(c * 1.8 + 32.0))
+        },
+        Temperature::Unknown(u) => {
+            TOut::Double(
+                Temperature::F(u * 1.8 + 32.0),
+                Temperature::C((u - 32.0) / 1.8)
+            )
         }
     }
 }
 
-fn f_to_c(f: f64) -> f64 {
-    (f - 32.0) / 1.8
+fn parse_output_mode(args: Vec<String>) -> Result<OutputMode, MyError> {
+
+    if args.len() == 2 {
+        
+        Ok(OutputMode::TemperatureWithUnit(Temperature::C(args[1])))
+    } else if args.len() == 2 && args[1] == "-h" {
+        Ok(OutputMode::PrintHelp)
+    } else if args.len() == 2 && args[1] == "-f" {
+        Ok(OutputMode::PrintForula)
+    } else {
+        Err(MyError::WrongSyntax)
+    }
 }
 
-fn c_to_f(c: f64) -> f64 {
-    c * 1.8 + 32.0
+fn main() {
+    let args: Vec<String> = env::args().collect();
+    let temp = parse_output_mode(args);
+
+    println!("{:?}", args);
 }
 
-#[test]
-fn smoke() {
-    assert_eq!(c_to_f(32.0), 89.6);
-}
 
-#[test]
-fn smoke2() {
-    assert_eq!(f_to_c(81.0), 27.2);
+#[cfg(test)]
+mod tests {
+    use super::{Temperature, convert};
+
+    #[test]
+    fn smoke3() {
+        let input = Temperature::C(32.0);
+        convert(input);
+    }
+    
+    // #[test]
+    // fn smoke1() {
+    //     assert_eq!(convert(Temperature::C(32.0)), 89.6);
+    // }
+    
+    // #[test]
+    // fn smoke2() {
+    //     assert_eq!(convert(Temperature::F(81.0)), 27.2);
+    // }
 }
