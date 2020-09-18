@@ -13,17 +13,18 @@ fc -f    # print formula
 fc -h    # print this help message";
 
 /// Temperature.
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 struct T {
     value: f64,
     unit: TUnit
 }
 
 /// Temperature unit.
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 enum TUnit {
     F,
-    C
+    C,
+    Unknown
 }
 
 /// Convert value from f to c.
@@ -36,24 +37,18 @@ fn to_f(c: f64) -> f64 {
     c * 1.8 + 32.0
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 enum CmdLineMode {
-    ConvertTemperature(Input),
+    ConvertTemperature(T),
     PrintFormula,
     PrintHelp
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 enum MyError {
     WrongSyntax,
     UnitNotRecognized,
     ValueNotANumber
-}
-
-#[derive(Debug, PartialEq)]
-enum Input {
-    Valid(T),
-    Fuzzy(f64)
 }
 
 /// 
@@ -62,22 +57,22 @@ enum Output {
     Double(T, T)
 }
 
-fn convert(input: Input) -> Output {
-    match input {
-        Input::Valid(T { value: f, unit: TUnit::F }) => {
+fn convert(input: T) -> Output {
+    match input.unit {
+        TUnit::F => {
             Output::Single(
-                T { value: to_c(f), unit: TUnit::C }
+                T { value: to_c(input.value), unit: TUnit::C }
             )
         },
-        Input::Valid(T { value: c, unit: TUnit::C }) => {
+        TUnit::C => {
             Output::Single(
-                T { value: to_f(c), unit: TUnit::F }
+                T { value: to_f(input.value), unit: TUnit::F }
             )
         },
-        Input::Fuzzy(u) => {
+        TUnit::Unknown => {
             Output::Double(
-                T { value: to_f(u), unit: TUnit::F },
-                T { value: to_c(u), unit: TUnit::C }
+                T { value: to_f(input.value), unit: TUnit::F },
+                T { value: to_c(input.value), unit: TUnit::C }
             )
         }
     }
@@ -103,11 +98,36 @@ fn parse_cmdline_input(args: Vec<String>) -> Result<CmdLineMode, MyError> {
 }
 
 // TODO:ALEX
-fn parse_string(arg: String) -> Result<Input, MyError> {
-    let maybe_unit = value_n_unit.chars().last().unwrap();
-    // if maybe_unit == "f" {
+fn parse_string(arg: String) -> Result<T, MyError> {
+    // the last char has to be c, C, f, F, or nothing.
+    let maybe_unit = arg.chars().rev().take(1).collect();
+    let unit= match maybe_unit {
+        'c' | 'C' => {
+            TUnit::C    
+        },
+        'f' | 'F' => {
+            TUnit::F
+        },
+        _ => {
+            if maybe_unit.is_digit(10) {
+                TUnit::Unknown
+            } else {
+                return Err(MyError::UnitNotRecognized);
+            }
+        }
+    };
 
-    // }
+    // for c, C, f, F, then the rest should be a float
+    let t = match unit {
+        TUnit::Unknown => {
+            T { value: arg, unit: unit }
+        },
+        _ => {
+            T { value: arg, unit: unit }
+        }
+    }
+    // for nothing, then the whole thing should be a float
+
 }
 
 fn main() {
@@ -149,13 +169,12 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use super::{Input, T, TUnit, convert};
+    use super::{T, TUnit, convert};
 
     #[test]
     fn fuzzy_convert_ok_from_C() {
-        let t = T {value: 32.0, unit: TUnit::F };
-        let input = Input::Valid(t);
-        convert(input);
+        let t = T { value: 32.0, unit: TUnit::F };
+        convert(t);
     }
 
     #[test]
