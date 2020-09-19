@@ -59,22 +59,19 @@ enum Output {
 
 fn convert(input: T) -> Output {
     match input.unit {
-        TUnit::F => {
+        TUnit::F => 
             Output::Single(
                 T { value: to_c(input.value), unit: TUnit::C }
-            )
-        },
-        TUnit::C => {
+            ),
+        TUnit::C => 
             Output::Single(
                 T { value: to_f(input.value), unit: TUnit::F }
-            )
-        },
-        TUnit::Unknown => {
+            ),
+        TUnit::Unknown =>
             Output::Double(
                 T { value: to_f(input.value), unit: TUnit::F },
                 T { value: to_c(input.value), unit: TUnit::C }
             )
-        }
     }
 }
 
@@ -86,12 +83,8 @@ fn parse_cmdline_input(args: &Vec<String>) -> Result<CmdLineMode, MyError> {
             Ok(CmdLineMode::PrintFormula)
         } else {
             match parse_string(&args[1]) {
-                Ok(input) => {
-                    Ok(CmdLineMode::ConvertTemperature(input))
-                },
-                Err(e) => {
-                    Err(e)
-                }
+                Ok(input) => Ok(CmdLineMode::ConvertTemperature(input)),
+                Err(e) => Err(e)
             }
         }
     } else {
@@ -103,12 +96,8 @@ fn parse_string(arg: &str) -> Result<T, MyError> {
     // the last char has to be c, C, f, F, or nothing.
     let maybe_unit = arg.chars().last().unwrap();
     let unit= match maybe_unit {
-        'c' | 'C' => {
-            TUnit::C    
-        },
-        'f' | 'F' => {
-            TUnit::F
-        },
+        'c' | 'C' => TUnit::C,
+        'f' | 'F' => TUnit::F,
         _ => {
             if maybe_unit.is_digit(10) {
                 TUnit::Unknown
@@ -118,43 +107,26 @@ fn parse_string(arg: &str) -> Result<T, MyError> {
         }
     };
 
-    // for c, C, f, F, then the rest should be a float
     match unit {
-        TUnit::Unknown => {
-            let v = arg.parse::<f64>();
-            match v  {
-                Err(_) => {
-                    return Err(MyError::ValueNotANumber);
-                },
-                Ok(value) => {
-                    return Ok(T { value, unit });
-                }
-            };
-            
-        },
-        _ => {
-            let v = arg[0..arg.len()-1].parse::<f64>();
-            match v {
-                Err(_) => {
-                    return Err(MyError::ValueNotANumber);
-                },
-                Ok(value) => {
-                    return Ok(T { value, unit });
-                }
+        TUnit::Unknown =>
+            match arg.parse::<f64>() {
+                Err(_) => return Err(MyError::ValueNotANumber),
+                Ok(value) => return Ok(T { value, unit })
+            },
+        _ =>
+            match arg[0..arg.len()-1].parse::<f64>() {
+                Err(_) => return Err(MyError::ValueNotANumber),
+                Ok(value) => return Ok(T { value, unit })
             }
-        }
     }
-
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let mode = parse_cmdline_input(&args);
-    
-    match mode {
+
+    match parse_cmdline_input(&args) {
         Ok(CmdLineMode::ConvertTemperature(i)) => {
-            let output = convert(i);
-            match output {
+            match convert(i) {
                 Output::Single(o) => {
                     println!("{}{:?} => {:.1}{:?}", i.value, i.unit, o.value, o.unit);
                 },
@@ -164,22 +136,14 @@ fn main() {
                 }
             }
         },
-        Ok(CmdLineMode::PrintHelp) => {
-            println!("{}", HELP_MSG);
-        },
+        Ok(CmdLineMode::PrintHelp) => println!("{}", HELP_MSG),
         Ok(CmdLineMode::PrintFormula) => {
             println!("F to C: (f - 32.0) / 1.8");
             println!("C to F: c * 1.8 + 32.0");
         },
-        Err(MyError::WrongSyntax) => {
-            println!("Wrong syntax!");
-        },
-        Err(MyError::ValueNotANumber) => {
-            println!("Value not a number!")
-        },
-        Err(MyError::UnitNotRecognized) => {
-            println!("Unit not recognized!");
-        }        
+        Err(MyError::WrongSyntax) => println!("Wrong syntax!"),
+        Err(MyError::ValueNotANumber) => println!("Value not a number!"),
+        Err(MyError::UnitNotRecognized) => println!("Unit not recognized!")        
     }
 }
 
