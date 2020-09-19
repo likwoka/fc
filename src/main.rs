@@ -1,5 +1,5 @@
 //! fc -- Convert temperature between Fahrenheit and Celsius
-use std::{env};
+use std::env;
 
 const HELP_MSG: &str = r"fc -- convert temperature between Fahrenheit and Celsius
 Usage:
@@ -78,7 +78,7 @@ fn convert(input: T) -> Output {
     }
 }
 
-fn parse_cmdline_input(args: Vec<String>) -> Result<CmdLineMode, MyError> {
+fn parse_cmdline_input(args: &Vec<String>) -> Result<CmdLineMode, MyError> {
     if args.len() == 2 {
         if args[1] == "-h" {
             Ok(CmdLineMode::PrintHelp)
@@ -99,7 +99,6 @@ fn parse_cmdline_input(args: Vec<String>) -> Result<CmdLineMode, MyError> {
     }
 }
 
-// TODO:ALEX
 fn parse_string(arg: &str) -> Result<T, MyError> {
     // the last char has to be c, C, f, F, or nothing.
     let maybe_unit = arg.chars().last().unwrap();
@@ -150,7 +149,7 @@ fn parse_string(arg: &str) -> Result<T, MyError> {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let mode = parse_cmdline_input(args);
+    let mode = parse_cmdline_input(&args);
     
     match mode {
         Ok(CmdLineMode::ConvertTemperature(i)) => {
@@ -187,13 +186,13 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use super::{T, TUnit, convert};
+    use super::{T, TUnit, convert, to_f, to_c, parse_string};
 
     #[test]
-    fn fuzzy_convert_ok_from_C() {
+    fn verify_f_to_c() {        
         let t = T { value: 32.0, unit: TUnit::F };
-        convert(t);
     }
+
 
     #[test]
     fn fuzzy_convert_ok_from_c() {
