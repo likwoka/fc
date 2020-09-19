@@ -76,35 +76,26 @@ fn convert(input: T) -> Output {
 }
 
 fn parse_cmdline_input(args: &Vec<String>) -> Result<CmdLineMode, MyError> {
-    if args.len() == 2 {
-        if args[1] == "-h" {
-            Ok(CmdLineMode::PrintHelp)
-        } else if args[1] == "-f" {
-            Ok(CmdLineMode::PrintFormula)
-        } else {
+    match args.len() {
+        2 if args[1] == "-h" => Ok(CmdLineMode::PrintHelp),
+        2 if args[1] == "-f" => Ok(CmdLineMode::PrintFormula),
+        2 => {
             match parse_string(&args[1]) {
                 Ok(input) => Ok(CmdLineMode::ConvertTemperature(input)),
                 Err(e) => Err(e)
             }
-        }
-    } else {
-        Err(MyError::WrongSyntax)
+        },
+        _ => Err(MyError::WrongSyntax)
     }
 }
 
 fn parse_string(arg: &str) -> Result<T, MyError> {
     // the last char has to be c, C, f, F, or nothing.
-    let maybe_unit = arg.chars().last().unwrap();
-    let unit= match maybe_unit {
+    let unit= match arg.chars().last().unwrap() {
         'c' | 'C' => TUnit::C,
         'f' | 'F' => TUnit::F,
-        _ => {
-            if maybe_unit.is_digit(10) {
-                TUnit::Unknown
-            } else {
-                return Err(MyError::UnitNotRecognized);
-            }
-        }
+        u if u.is_digit(10) => TUnit::Unknown,
+        _ => return Err(MyError::UnitNotRecognized)
     };
 
     match unit {
