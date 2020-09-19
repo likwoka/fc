@@ -13,14 +13,14 @@ fc -f    # print formula
 fc -h    # print this help message";
 
 /// Temperature.
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 struct T {
     value: f64,
     unit: TUnit
 }
 
 /// Temperature unit.
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 enum TUnit {
     F,
     C,
@@ -80,18 +80,20 @@ fn convert(input: T) -> Output {
 
 fn parse_cmdline_input(args: Vec<String>) -> Result<CmdLineMode, MyError> {
     if args.len() == 2 {
-        match parse_string(&args[1]) {
-            Ok(input) => {
-                Ok(CmdLineMode::ConvertTemperature(input))
-            },
-            Err(e) => {
-                Err(e)
+        if args[1] == "-h" {
+            Ok(CmdLineMode::PrintHelp)
+        } else if args[1] == "-f" {
+            Ok(CmdLineMode::PrintFormula)
+        } else {
+            match parse_string(&args[1]) {
+                Ok(input) => {
+                    Ok(CmdLineMode::ConvertTemperature(input))
+                },
+                Err(e) => {
+                    Err(e)
+                }
             }
         }
-    } else if args.len() == 2 && args[1] == "-h" {
-        Ok(CmdLineMode::PrintHelp)
-    } else if args.len() == 2 && args[1] == "-f" {
-        Ok(CmdLineMode::PrintFormula)
     } else {
         Err(MyError::WrongSyntax)
     }
@@ -132,7 +134,7 @@ fn parse_string(arg: &str) -> Result<T, MyError> {
             
         },
         _ => {
-            let v = arg[0..arg.len()-2].parse::<f64>();
+            let v = arg[0..arg.len()-1].parse::<f64>();
             match v {
                 Err(_) => {
                     return Err(MyError::ValueNotANumber);
@@ -151,15 +153,15 @@ fn main() {
     let mode = parse_cmdline_input(args);
     
     match mode {
-        Ok(CmdLineMode::ConvertTemperature(input)) => {
-            let output = convert(input);
+        Ok(CmdLineMode::ConvertTemperature(i)) => {
+            let output = convert(i);
             match output {
                 Output::Single(o) => {
-                    println!("xx => yy");           // TODO:ALEX
+                    println!("{}{:?} => {:.1}{:?}", i.value, i.unit, o.value, o.unit);
                 },
                 Output::Double(j, k) => {
-                    println!("xx => yy");           // TODO:ALEX
-                    println!("xx => yy");
+                    println!("{}C => {:.1}{:?}", i.value, j.value, j.unit);
+                    println!("{}F => {:.1}{:?}", i.value, k.value, k.unit);
                 }
             }
         },
