@@ -1,5 +1,5 @@
 //! fc -- Convert temperature between Fahrenheit and Celsius
-use std::{env, io};
+use std::{env};
 
 const HELP_MSG: &str = r"fc -- convert temperature between Fahrenheit and Celsius
 Usage:
@@ -80,7 +80,7 @@ fn convert(input: T) -> Output {
 
 fn parse_cmdline_input(args: Vec<String>) -> Result<CmdLineMode, MyError> {
     if args.len() == 2 {
-        match parse_string(args[1]) {
+        match parse_string(&args[1]) {
             Ok(input) => {
                 Ok(CmdLineMode::ConvertTemperature(input))
             },
@@ -98,9 +98,9 @@ fn parse_cmdline_input(args: Vec<String>) -> Result<CmdLineMode, MyError> {
 }
 
 // TODO:ALEX
-fn parse_string(arg: String) -> Result<T, MyError> {
+fn parse_string(arg: &str) -> Result<T, MyError> {
     // the last char has to be c, C, f, F, or nothing.
-    let maybe_unit = arg.chars().rev().take(1).collect();
+    let maybe_unit = arg.chars().last().unwrap();
     let unit= match maybe_unit {
         'c' | 'C' => {
             TUnit::C    
@@ -118,15 +118,31 @@ fn parse_string(arg: String) -> Result<T, MyError> {
     };
 
     // for c, C, f, F, then the rest should be a float
-    let t = match unit {
+    match unit {
         TUnit::Unknown => {
-            T { value: arg, unit: unit }
+            let v = arg.parse::<f64>();
+            match v  {
+                Err(_) => {
+                    return Err(MyError::ValueNotANumber);
+                },
+                Ok(value) => {
+                    return Ok(T { value, unit });
+                }
+            };
+            
         },
         _ => {
-            T { value: arg, unit: unit }
+            let v = arg[0..arg.len()-2].parse::<f64>();
+            match v {
+                Err(_) => {
+                    return Err(MyError::ValueNotANumber);
+                },
+                Ok(value) => {
+                    return Ok(T { value, unit });
+                }
+            }
         }
     }
-    // for nothing, then the whole thing should be a float
 
 }
 
