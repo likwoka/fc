@@ -51,7 +51,8 @@ enum MyError {
     ValueNotANumber
 }
 
-/// 
+/// Output of temperature conversion function.
+/// Can output 2 temperatures if it is a fuzzy input.
 enum Output {
     Single(T),
     Double(T, T)
@@ -79,12 +80,7 @@ fn parse_cmdline_input(args: &Vec<String>) -> Result<CmdLineMode, MyError> {
     match args.len() {
         2 if args[1] == "-h" => Ok(CmdLineMode::PrintHelp),
         2 if args[1] == "-f" => Ok(CmdLineMode::PrintFormula),
-        2 => {
-            match parse_string(&args[1]) {
-                Ok(input) => Ok(CmdLineMode::ConvertTemperature(input)),
-                Err(e) => Err(e)
-            }
-        },
+        2 => Ok(CmdLineMode::ConvertTemperature(parse_string(&args[1])?)),
         _ => Err(MyError::WrongSyntax)
     }
 }
@@ -101,13 +97,13 @@ fn parse_string(arg: &str) -> Result<T, MyError> {
     match unit {
         TUnit::Unknown =>
             match arg.parse::<f64>() {
-                Err(_) => return Err(MyError::ValueNotANumber),
-                Ok(value) => return Ok(T { value, unit })
+                Ok(value) => return Ok(T { value, unit }),
+                Err(_) => return Err(MyError::ValueNotANumber)
             },
         _ =>
             match arg[0..arg.len()-1].parse::<f64>() {
+                Ok(value) => return Ok(T { value, unit }),
                 Err(_) => return Err(MyError::ValueNotANumber),
-                Ok(value) => return Ok(T { value, unit })
             }
     }
 }
@@ -141,7 +137,7 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use super::{T, TUnit, convert, to_f, to_c, parse_string};
+    use super::*;
 
     #[test]
     fn verify_f_to_c() {        
