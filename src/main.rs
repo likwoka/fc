@@ -16,7 +16,7 @@ fc -h    # print this help message";
 #[derive(Debug, Copy, Clone)]
 struct T {
     value: f64,
-    unit: TUnit
+    unit: TUnit,
 }
 
 /// Temperature unit.
@@ -24,7 +24,7 @@ struct T {
 enum TUnit {
     F,
     C,
-    Unknown
+    Unknown,
 }
 
 /// Convert value from f to c.
@@ -41,38 +41,43 @@ fn to_f(c: f64) -> f64 {
 enum CmdLineMode {
     ConvertTemperature(T),
     PrintFormula,
-    PrintHelp
+    PrintHelp,
 }
 
 #[derive(Debug)]
 enum MyError {
     WrongSyntax,
     UnitNotRecognized,
-    ValueNotANumber
+    ValueNotANumber,
 }
 
 /// Output of temperature conversion function.
 /// Can output 2 temperatures if it is a fuzzy input.
 enum Output {
     Single(T),
-    Double(T, T)
+    Double(T, T),
 }
 
 fn convert(input: T) -> Output {
     match input.unit {
-        TUnit::F => 
-            Output::Single(
-                T { value: to_c(input.value), unit: TUnit::C }
-            ),
-        TUnit::C => 
-            Output::Single(
-                T { value: to_f(input.value), unit: TUnit::F }
-            ),
-        TUnit::Unknown =>
-            Output::Double(
-                T { value: to_f(input.value), unit: TUnit::F },
-                T { value: to_c(input.value), unit: TUnit::C }
-            )
+        TUnit::F => Output::Single(T {
+            value: to_c(input.value),
+            unit: TUnit::C,
+        }),
+        TUnit::C => Output::Single(T {
+            value: to_f(input.value),
+            unit: TUnit::F,
+        }),
+        TUnit::Unknown => Output::Double(
+            T {
+                value: to_f(input.value),
+                unit: TUnit::F,
+            },
+            T {
+                value: to_c(input.value),
+                unit: TUnit::C,
+            },
+        ),
     }
 }
 
@@ -81,30 +86,28 @@ fn parse_cmdline(args: &Vec<String>) -> Result<CmdLineMode, MyError> {
         2 if args[1] == "-h" => Ok(CmdLineMode::PrintHelp),
         2 if args[1] == "-f" => Ok(CmdLineMode::PrintFormula),
         2 => Ok(CmdLineMode::ConvertTemperature(parse_string(&args[1])?)),
-        _ => Err(MyError::WrongSyntax)
+        _ => Err(MyError::WrongSyntax),
     }
 }
 
 fn parse_string(arg: &str) -> Result<T, MyError> {
     // the last char has to be c, C, f, F, or nothing.
-    let unit= match arg.chars().last().unwrap() {
+    let unit = match arg.chars().last().unwrap() {
         'c' | 'C' => TUnit::C,
         'f' | 'F' => TUnit::F,
         u if u.is_digit(10) => TUnit::Unknown,
-        _ => return Err(MyError::UnitNotRecognized)
+        _ => return Err(MyError::UnitNotRecognized),
     };
 
     match unit {
-        TUnit::Unknown =>
-            match arg.parse::<f64>() {
-                Ok(value) => return Ok(T { value, unit }),
-                Err(_) => return Err(MyError::ValueNotANumber)
-            },
-        _ =>
-            match arg[0..arg.len()-1].parse::<f64>() {
-                Ok(value) => return Ok(T { value, unit }),
-                Err(_) => return Err(MyError::ValueNotANumber),
-            }
+        TUnit::Unknown => match arg.parse::<f64>() {
+            Ok(value) => return Ok(T { value, unit }),
+            Err(_) => return Err(MyError::ValueNotANumber),
+        },
+        _ => match arg[0..arg.len() - 1].parse::<f64>() {
+            Ok(value) => return Ok(T { value, unit }),
+            Err(_) => return Err(MyError::ValueNotANumber),
+        },
     }
 }
 
@@ -112,25 +115,23 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     match parse_cmdline(&args) {
-        Ok(CmdLineMode::ConvertTemperature(i)) => {
-            match convert(i) {
-                Output::Single(o) => {
-                    println!("{}{:?} => {:.1}{:?}", i.value, i.unit, o.value, o.unit);
-                },
-                Output::Double(j, k) => {
-                    println!("{}C => {:.1}{:?}", i.value, j.value, j.unit);
-                    println!("{}F => {:.1}{:?}", i.value, k.value, k.unit);
-                }
+        Ok(CmdLineMode::ConvertTemperature(i)) => match convert(i) {
+            Output::Single(o) => {
+                println!("{}{:?} => {:.1}{:?}", i.value, i.unit, o.value, o.unit);
+            }
+            Output::Double(j, k) => {
+                println!("{}C => {:.1}{:?}", i.value, j.value, j.unit);
+                println!("{}F => {:.1}{:?}", i.value, k.value, k.unit);
             }
         },
         Ok(CmdLineMode::PrintHelp) => println!("{}", HELP_MSG),
         Ok(CmdLineMode::PrintFormula) => {
             println!("F to C: (f - 32.0) / 1.8");
             println!("C to F: c * 1.8 + 32.0");
-        },
+        }
         Err(MyError::WrongSyntax) => println!("Wrong syntax!"),
         Err(MyError::ValueNotANumber) => println!("Value not a number!"),
-        Err(MyError::UnitNotRecognized) => println!("Unit not recognized!")        
+        Err(MyError::UnitNotRecognized) => println!("Unit not recognized!"),
     }
 }
 
@@ -139,18 +140,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn convert_ok_from_c() {
-        
-    }
+    fn convert_ok_from_c() {}
 
     #[test]
-    fn convert_ok_from_f() {
-        
-    }
+    fn convert_ok_from_f() {}
 
     #[test]
-    fn convert_ok_from_unknown() {
-    }
+    fn convert_ok_from_unknown() {}
 
     #[test]
     fn parse_cmdline_ok_help_mesg() -> Result<(), MyError> {
