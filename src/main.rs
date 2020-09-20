@@ -76,7 +76,7 @@ fn convert(input: T) -> Output {
     }
 }
 
-fn parse_cmdline_input(args: &Vec<String>) -> Result<CmdLineMode, MyError> {
+fn parse_cmdline(args: &Vec<String>) -> Result<CmdLineMode, MyError> {
     match args.len() {
         2 if args[1] == "-h" => Ok(CmdLineMode::PrintHelp),
         2 if args[1] == "-f" => Ok(CmdLineMode::PrintFormula),
@@ -111,7 +111,7 @@ fn parse_string(arg: &str) -> Result<T, MyError> {
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    match parse_cmdline_input(&args) {
+    match parse_cmdline(&args) {
         Ok(CmdLineMode::ConvertTemperature(i)) => {
             match convert(i) {
                 Output::Single(o) => {
@@ -134,34 +134,76 @@ fn main() {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn verify_f_to_c() {        
-        let t = T { value: 32.0, unit: TUnit::F };
-    }
-
-
-    #[test]
-    fn fuzzy_convert_ok_from_c() {
+    fn convert_ok_from_c() {
+        
     }
 
     #[test]
-    fn fuzzy_convert_ok_from_F() {
+    fn convert_ok_from_f() {
+        
     }
 
     #[test]
-    fn fuzzy_convert_ok_from_f() {
+    fn convert_ok_from_unknown() {
     }
 
     #[test]
-    fn fuzzy_convert_ok_from_unknown() {
+    fn parse_cmdline_ok_help_mesg() -> Result<(), MyError> {
+        Ok(())
     }
 
     #[test]
-    fn fuzzy_convert_fail_from_invalid() {
+    fn parse_cmdline_ok_print_formula() -> Result<(), MyError> {
+        Ok(())
+    }
+
+    #[test]
+    fn parse_cmdline_err_too_little_params() -> Result<(), MyError> {
+        Ok(())
+    }
+
+    #[test]
+    fn parse_cmdline_err_too_many_params() -> Result<(), MyError> {
+        Ok(())
+    }
+
+    #[test]
+    fn parse_string_ok_lowercase_f() -> Result<(), MyError> {
+        Ok(())
+    }
+
+    #[test]
+    fn parse_string_ok_uppercase_f() -> Result<(), MyError> {
+        Ok(())
+    }
+
+    #[test]
+    fn parse_string_ok_lowercase_c() -> Result<(), MyError> {
+        Ok(())
+    }
+
+    #[test]
+    fn parse_string_ok_uppercase_c() -> Result<(), MyError> {
+        Ok(())
+    }
+
+    #[test]
+    fn parse_string_ok_no_unit() -> Result<(), MyError> {
+        Ok(())
+    }
+
+    #[test]
+    fn parse_string_err_invalid() -> Result<(), MyError> {
+        Ok(())
+    }
+
+    #[test]
+    fn parse_string_err_invalid2() -> Result<(), MyError> {
+        Ok(())
     }
 }
