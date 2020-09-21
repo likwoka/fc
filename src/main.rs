@@ -19,22 +19,30 @@ struct T {
     unit: TUnit,
 }
 
+impl T {
+    /// Convert value from f to c.
+    fn f_to_c(f: &T) -> T {
+        T {
+            value: (f.value - 32.0) / 1.8,
+            unit: TUnit::C,
+        }
+    }
+
+    /// Convert value from c to f.
+    fn c_to_f(c: &T) -> T {
+        T {
+            value: c.value * 1.8 + 32.0,
+            unit: TUnit::F,
+        }
+    }
+}
+
 /// Temperature unit.
 #[derive(Debug, Copy, Clone)]
 enum TUnit {
     F,
     C,
     Unknown,
-}
-
-/// Convert value from f to c.
-fn to_c(f: f64) -> f64 {
-    (f - 32.0) / 1.8
-}
-
-/// Convert value from c to f.
-fn to_f(c: f64) -> f64 {
-    c * 1.8 + 32.0
 }
 
 #[derive(Debug)]
@@ -60,24 +68,9 @@ enum Output {
 
 fn convert(input: T) -> Output {
     match input.unit {
-        TUnit::F => Output::Single(T {
-            value: to_c(input.value),
-            unit: TUnit::C,
-        }),
-        TUnit::C => Output::Single(T {
-            value: to_f(input.value),
-            unit: TUnit::F,
-        }),
-        TUnit::Unknown => Output::Double(
-            T {
-                value: to_f(input.value),
-                unit: TUnit::F,
-            },
-            T {
-                value: to_c(input.value),
-                unit: TUnit::C,
-            },
-        ),
+        TUnit::F => Output::Single(T::f_to_c(&input)),
+        TUnit::C => Output::Single(T::c_to_f(&input)),
+        TUnit::Unknown => Output::Double(T::c_to_f(&input), T::f_to_c(&input)),
     }
 }
 
