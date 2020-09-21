@@ -21,18 +21,24 @@ struct T {
 
 impl T {
     /// Convert value from f to c.
-    fn f_to_c(f: &T) -> T {
-        T {
-            value: (f.value - 32.0) / 1.8,
-            unit: TUnit::C,
+    fn to_c(&self) -> T {
+        match self.unit {
+            TUnit::C => self.clone(),
+            _ => T {
+                value: (self.value - 32.0) / 1.8,
+                unit: TUnit::C,
+            },
         }
     }
 
     /// Convert value from c to f.
-    fn c_to_f(c: &T) -> T {
-        T {
-            value: c.value * 1.8 + 32.0,
-            unit: TUnit::F,
+    fn to_f(&self) -> T {
+        match self.unit {
+            TUnit::F => self.clone(),
+            _ => T {
+                value: self.value * 1.8 + 32.0,
+                unit: TUnit::F,
+            },
         }
     }
 }
@@ -68,9 +74,9 @@ enum Output {
 
 fn convert(input: T) -> Output {
     match input.unit {
-        TUnit::F => Output::Single(T::f_to_c(&input)),
-        TUnit::C => Output::Single(T::c_to_f(&input)),
-        TUnit::Unknown => Output::Double(T::c_to_f(&input), T::f_to_c(&input)),
+        TUnit::F => Output::Single(input.to_c()),
+        TUnit::C => Output::Single(input.to_f()),
+        TUnit::Unknown => Output::Double(input.to_f(), input.to_c()),
     }
 }
 
