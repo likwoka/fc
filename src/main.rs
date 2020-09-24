@@ -65,19 +65,12 @@ enum MyError {
     ValueNotANumber,
 }
 
-/// Output of temperature conversion function.
-/// Can output 2 temperatures if it is a fuzzy input.
-enum Output {
-    Single(T),
-    Double(T, T),
-}
-
-fn convert(input: T) -> Output {
+fn convert(input: T) -> Vec<T> {
     match input.unit {
-        TUnit::F => Output::Single(input.to_c()),
-        TUnit::C => Output::Single(input.to_f()),
-        TUnit::Unknown => Output::Double(input.to_f(), input.to_c()),
-    }
+        TUnit::F => vec![input.to_c()],
+        TUnit::C => vec![input.to_f()],
+        TUnit::Unknown => vec![input.to_f(), input.to_c()],
+    }    
 }
 
 fn parse_cmdline(args: &Vec<String>) -> Result<CmdLineMode, MyError> {
@@ -114,13 +107,14 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     match parse_cmdline(&args) {
-        Ok(CmdLineMode::ConvertTemperature(i)) => match convert(i) {
-            Output::Single(o) => {
-                println!("{}{:?} => {:.1}{:?}", i.value, i.unit, o.value, o.unit);
-            }
-            Output::Double(j, k) => {
-                println!("{}C => {:.1}{:?}", i.value, j.value, j.unit);
-                println!("{}F => {:.1}{:?}", i.value, k.value, k.unit);
+        Ok(CmdLineMode::ConvertTemperature(i)) => {
+            let output = convert(i);
+            for o in output {
+                let i_unit = match o.unit {
+                    TUnit::C => TUnit::F,
+                    _ => TUnit::C,
+                };
+                println!("{}{:?} => {:.1}{:?}", i.value, i_unit, o.value, o.unit)
             }
         },
         Ok(CmdLineMode::PrintHelp) => println!("{}", HELP_MSG),
