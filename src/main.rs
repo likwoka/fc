@@ -1,5 +1,9 @@
-//! fc -- Convert temperature between Fahrenheit and Celsius
+//! # fc
+//! 
+//! A command line program that converts temperature between Fahrenheit and Celsius.
 use std::env;
+
+use fc;
 
 const HELP_MSG: &str = r"fc -- convert temperature between Fahrenheit and Celsius
 Usage:
@@ -12,94 +16,19 @@ fc 81    # output: 81F => 27.2C; 81C => 177.8F
 fc -f    # print formula
 fc -h    # print this help message";
 
-/// Temperature.
-#[derive(Debug, Copy, Clone)]
-struct T {
-    value: f64,
-    unit: TUnit,
-}
-
-impl T {
-    /// Convert value from f to c.
-    fn to_c(&self) -> T {
-        match self.unit {
-            TUnit::C => self.clone(),
-            _ => T {
-                value: (self.value - 32.0) / 1.8,
-                unit: TUnit::C,
-            },
-        }
-    }
-
-    /// Convert value from c to f.
-    fn to_f(&self) -> T {
-        match self.unit {
-            TUnit::F => self.clone(),
-            _ => T {
-                value: self.value * 1.8 + 32.0,
-                unit: TUnit::F,
-            },
-        }
-    }
-}
-
-/// Temperature unit.
-#[derive(Debug, Copy, Clone)]
-enum TUnit {
-    F,
-    C,
-    Unknown,
-}
-
 #[derive(Debug)]
 enum CmdLineMode {
-    ConvertTemperature(T),
+    ConvertTemperature(fc::T),
     PrintFormula,
     PrintHelp,
 }
 
-#[derive(Debug)]
-enum MyError {
-    WrongSyntax,
-    UnitNotRecognized,
-    ValueNotANumber,
-}
-
-fn convert(input: T) -> Vec<T> {
-    match input.unit {
-        TUnit::F => vec![input.to_c()],
-        TUnit::C => vec![input.to_f()],
-        TUnit::Unknown => vec![input.to_f(), input.to_c()],
-    }    
-}
-
-fn parse_cmdline(args: &Vec<String>) -> Result<CmdLineMode, MyError> {
+fn parse_cmdline(args: &Vec<String>) -> Result<CmdLineMode, fc::MyError> {
     match args.len() {
         2 if args[1] == "-h" => Ok(CmdLineMode::PrintHelp),
         2 if args[1] == "-f" => Ok(CmdLineMode::PrintFormula),
-        2 => Ok(CmdLineMode::ConvertTemperature(parse_string(&args[1])?)),
-        _ => Err(MyError::WrongSyntax),
-    }
-}
-
-fn parse_string(arg: &str) -> Result<T, MyError> {
-    // the last char has to be c, C, f, F, or nothing.
-    let unit = match arg.chars().last().unwrap() {
-        'c' | 'C' => TUnit::C,
-        'f' | 'F' => TUnit::F,
-        u if u.is_digit(10) => TUnit::Unknown,
-        _ => return Err(MyError::UnitNotRecognized),
-    };
-
-    match unit {
-        TUnit::Unknown => match arg.parse::<f64>() {
-            Ok(value) => return Ok(T { value, unit }),
-            Err(_) => return Err(MyError::ValueNotANumber),
-        },
-        _ => match arg[0..arg.len() - 1].parse::<f64>() {
-            Ok(value) => return Ok(T { value, unit }),
-            Err(_) => return Err(MyError::ValueNotANumber),
-        },
+        2 => Ok(CmdLineMode::ConvertTemperature(fc::parse_str_to_t(&args[1])?)),
+        _ => Err(fc::MyError::WrongSyntax),
     }
 }
 
@@ -108,23 +37,23 @@ fn main() {
 
     match parse_cmdline(&args) {
         Ok(CmdLineMode::ConvertTemperature(i)) => {
-            let output = convert(i);
+            let output = fc::convert(i);
             for o in output {
                 let i_unit = match o.unit {
-                    TUnit::C => TUnit::F,
-                    _ => TUnit::C,
+                    fc::TUnit::C => fc::TUnit::F,
+                    _ => fc::TUnit::C,
                 };
                 println!("{}{:?} => {:.1}{:?}", i.value, i_unit, o.value, o.unit)
             }
-        },
+        }
         Ok(CmdLineMode::PrintHelp) => println!("{}", HELP_MSG),
         Ok(CmdLineMode::PrintFormula) => {
             println!("F to C: (f - 32.0) / 1.8");
             println!("C to F: c * 1.8 + 32.0");
         }
-        Err(MyError::WrongSyntax) => println!("Wrong syntax!"),
-        Err(MyError::ValueNotANumber) => println!("Value not a number!"),
-        Err(MyError::UnitNotRecognized) => println!("Unit not recognized!"),
+        Err(fc::MyError::WrongSyntax) => println!("Wrong syntax!"),
+        Err(fc::MyError::ValueNotANumber) => println!("Value not a number!"),
+        Err(fc::MyError::UnitNotRecognized) => println!("Unit not recognized!"),
     }
 }
 
@@ -133,66 +62,50 @@ mod tests {
     use super::*;
 
     #[test]
-    fn convert_ok_from_c() {}
-
-    #[test]
-    fn convert_ok_from_f() {}
-
-    #[test]
-    fn convert_ok_from_unknown() {}
-
-    #[test]
-    fn parse_cmdline_ok_help_mesg() -> Result<(), MyError> {
-        Ok(())
+    fn parse_cmdline_ok_help_mesg() -> Result<(), String> {
+        match parse_cmdline(&vec!["fc".to_string(), "-h".into()]) {
+            Ok(CmdLineMode::PrintHelp) => Ok(()),
+            actual => Err(String::from(format!(
+                "Expect {:?}, got {:?} instead",
+                CmdLineMode::PrintHelp,
+                actual
+            ))),
+        }
     }
 
     #[test]
-    fn parse_cmdline_ok_print_formula() -> Result<(), MyError> {
-        Ok(())
+    fn parse_cmdline_ok_print_formula() -> Result<(), String> {
+        match parse_cmdline(&vec!["fc".to_string(), "-f".into()]) {
+            Ok(CmdLineMode::PrintFormula) => Ok(()),
+            actual => Err(String::from(format!(
+                "Expect {:?}, got {:?} instead",
+                CmdLineMode::PrintFormula,
+                actual
+            ))),
+        }
     }
 
     #[test]
-    fn parse_cmdline_err_too_little_params() -> Result<(), MyError> {
-        Ok(())
+    fn parse_cmdline_err_too_little_params() -> Result<(), String> {
+        match parse_cmdline(&vec!["fc".to_string()]) {
+            Err(fc::MyError::WrongSyntax) => Ok(()),
+            actual => Err(String::from(format!(
+                "Expect {:?}, got {:?} instead",
+                fc::MyError::WrongSyntax,
+                actual
+            ))),
+        }
     }
 
     #[test]
-    fn parse_cmdline_err_too_many_params() -> Result<(), MyError> {
-        Ok(())
-    }
-
-    #[test]
-    fn parse_string_ok_lowercase_f() -> Result<(), MyError> {
-        Ok(())
-    }
-
-    #[test]
-    fn parse_string_ok_uppercase_f() -> Result<(), MyError> {
-        Ok(())
-    }
-
-    #[test]
-    fn parse_string_ok_lowercase_c() -> Result<(), MyError> {
-        Ok(())
-    }
-
-    #[test]
-    fn parse_string_ok_uppercase_c() -> Result<(), MyError> {
-        Ok(())
-    }
-
-    #[test]
-    fn parse_string_ok_no_unit() -> Result<(), MyError> {
-        Ok(())
-    }
-
-    #[test]
-    fn parse_string_err_invalid() -> Result<(), MyError> {
-        Ok(())
-    }
-
-    #[test]
-    fn parse_string_err_invalid2() -> Result<(), MyError> {
-        Ok(())
+    fn parse_cmdline_err_too_many_params() -> Result<(), String> {
+        match parse_cmdline(&vec!["fc".to_string(), "blah".into(), "blob".into()]) {
+            Err(fc::MyError::WrongSyntax) => Ok(()),
+            actual => Err(String::from(format!(
+                "Expect {:?}, got {:?} instead",
+                fc::MyError::WrongSyntax,
+                actual
+            ))),
+        }
     }
 }
