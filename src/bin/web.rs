@@ -1,8 +1,9 @@
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use fc;
 
 #[get("/")]
 async fn hello() -> impl Responder {
-    HttpResponse::Ok().body("Hello world!")
+    HttpResponse::Ok().body("fc -- a toy program that converts temperature between Fahrenheit and Celsius")
 }
 
 #[post("/echo")]
