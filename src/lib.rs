@@ -93,11 +93,11 @@ pub fn parse_str_to_t(arg: &str) -> Result<T, MyError> {
 /// # Examples
 /// ```
 /// // returns 1-element vector of T {value: 73.4, fc::TUnit::F}
-/// fc::convert(T {value: 23.0, unit: fc::TUnit::C})
+/// fc::convert(fc::T {value: 23.0, unit: fc::TUnit::C});
 /// // returns 1-element vector of T {value: 23.0, fc::TUnit::C}   
-/// fc::convert(T {value: 73.4, unit: fc::TUnit::F})
+/// fc::convert(fc::T {value: 73.4, unit: fc::TUnit::F});
 /// // returns 2-element vector of T {value: 165.2, fc::TUnit::F}, {value: 23.3, fc::TUnit::C}
-/// fc::convert(T {value: 74, unit: fc::TUnit::Unknown})
+/// fc::convert(fc::T {value: 74.0, unit: fc::TUnit::Unknown});
 /// ```
 pub fn convert(input: T) -> Vec<T> {
     match input.unit {
