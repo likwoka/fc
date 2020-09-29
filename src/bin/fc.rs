@@ -1,5 +1,5 @@
 //! # fc
-//! 
+//!
 //! A command line program that converts temperature between Fahrenheit and Celsius.
 use std::env;
 
@@ -27,7 +27,9 @@ fn parse_cmdline(args: &Vec<String>) -> Result<CmdLineMode, fc::MyError> {
     match args.len() {
         2 if args[1] == "-h" => Ok(CmdLineMode::PrintHelp),
         2 if args[1] == "-f" => Ok(CmdLineMode::PrintFormula),
-        2 => Ok(CmdLineMode::ConvertTemperature(fc::parse_str_to_t(&args[1])?)),
+        2 => Ok(CmdLineMode::ConvertTemperature(fc::parse_str_to_t(
+            &args[1],
+        )?)),
         _ => Err(fc::MyError::WrongSyntax),
     }
 }

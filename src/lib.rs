@@ -13,8 +13,11 @@ pub enum MyError {
 /// Temperature unit.
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum TUnit {
+    /// Fahrenheit
     F,
+    /// Celsius
     C,
+    /// Not specified in input
     Unknown,
 }
 
@@ -54,6 +57,16 @@ impl T {
 }
 
 /// Parse a string input (string slice) to a temperature (T).
+///
+/// # Examples
+/// ```
+/// fc::parse_str_to_t("23C");  // returns T {value:23.0, unit: TUnit::C}
+/// fc::parse_str_to_t("23c");  // returns T {value:23.0, unit: TUnit::C}
+/// fc::parse_str_to_t("74F");  // returns T {value:74.0, unit: TUnit::F}
+/// fc::parse_str_to_t("74f");  // returns T {value:74.0, unit: TUnit::F}
+/// fc::parse_str_to_t("74");   // returns T {value:74.0, unit: TUnit::Unknown}
+/// fc::parse_str_to_t("abc");  // MyError::ValueNotANumber
+/// ```
 pub fn parse_str_to_t(arg: &str) -> Result<T, MyError> {
     // the last char has to be c, C, f, F, or nothing.
     let unit = match arg.chars().last().unwrap() {
@@ -76,6 +89,16 @@ pub fn parse_str_to_t(arg: &str) -> Result<T, MyError> {
 }
 
 /// Convert an input temperature to one or more output temperatures.
+///
+/// # Examples
+/// ```
+/// // returns 1-element vector of T {value: 73.4, fc::TUnit::F}
+/// fc::convert(T {value: 23.0, unit: fc::TUnit::C})
+/// // returns 1-element vector of T {value: 23.0, fc::TUnit::C}   
+/// fc::convert(T {value: 73.4, unit: fc::TUnit::F})
+/// // returns 2-element vector of T {value: 165.2, fc::TUnit::F}, {value: 23.3, fc::TUnit::C}
+/// fc::convert(T {value: 74, unit: fc::TUnit::Unknown})
+/// ```
 pub fn convert(input: T) -> Vec<T> {
     match input.unit {
         TUnit::F => vec![input.to_c()],
