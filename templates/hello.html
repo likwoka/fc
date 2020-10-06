@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+    <head>
+        <title>fc</title>
+        <meta charset="utf-8"/>
+    </head>
+    <body>
+        <p>Converts temperature between Fahrenheit and Celsius</p>
+        {% if error.len() > 0 %}
+        <p style="color:#fd1e68">{{ error }}</p>
+        {% endif %}
+        <form action="" method="post">
+            <input type="number" name="value" id="value" required />
+            <input type="radio" name="unit" id="F" value="F" /><label for="F">F</label>
+            <input type="radio" name="unit" id="C" value="C" /><label for="C">C</label>
+            <p><input type="submit" value="Convert!"/></p>
+        </form>
+        
+    </body>
+</html>
