@@ -27,10 +27,10 @@ async fn result(params: web::Form<RawT>) -> impl Responder {
     match fc::parse_str_to_t(&format!("{}{}", params.value, params.unit)) {
         Ok(t) => {
             let r = fc::convert(t);
-            HelloTpl { error: "", result: "blah".into() }.into_response()
+            HelloTpl { error: "", result: "blah" }.into_response()
         },
         Err(e) => HelloTpl { error: e.to_str(), result: "" }.into_response()
-    };
+    }
 }
 
 #[actix_web::main]
