@@ -23,20 +23,19 @@ enum CmdLineMode {
     PrintHelp,
 }
 
-fn parse_cmdline(args: &Vec<String>) -> Result<CmdLineMode, fc::MyError> {
+fn parse_cmdline(args: &Vec<String>) -> Result<CmdLineMode, fc::FcError> {
     match args.len() {
         2 if args[1] == "-h" => Ok(CmdLineMode::PrintHelp),
         2 if args[1] == "-f" => Ok(CmdLineMode::PrintFormula),
         2 => Ok(CmdLineMode::ConvertTemperature(fc::parse_str_to_t(
             &args[1],
         )?)),
-        _ => Err(fc::MyError::WrongSyntax),
+        _ => Err(fc::FcError::WrongSyntax),
     }
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-
     match parse_cmdline(&args) {
         Ok(CmdLineMode::ConvertTemperature(i)) => {
             let output = fc::convert(i);
@@ -53,9 +52,7 @@ fn main() {
             println!("F to C: (f - 32.0) / 1.8");
             println!("C to F: c * 1.8 + 32.0");
         }
-        Err(fc::MyError::WrongSyntax) => println!("Wrong syntax!"),
-        Err(fc::MyError::ValueNotANumber) => println!("Value not a number!"),
-        Err(fc::MyError::UnitNotRecognized) => println!("Unit not recognized!"),
+        Err(e) =>  println!("{}", e.to_str()),
     }
 }
 
@@ -90,10 +87,10 @@ mod tests {
     #[test]
     fn parse_cmdline_err_too_little_params() -> Result<(), String> {
         match parse_cmdline(&vec!["fc".to_string()]) {
-            Err(fc::MyError::WrongSyntax) => Ok(()),
+            Err(fc::FcError::WrongSyntax) => Ok(()),
             actual => Err(String::from(format!(
                 "Expect {:?}, got {:?} instead",
-                fc::MyError::WrongSyntax,
+                fc::FcError::WrongSyntax,
                 actual
             ))),
         }
@@ -102,10 +99,10 @@ mod tests {
     #[test]
     fn parse_cmdline_err_too_many_params() -> Result<(), String> {
         match parse_cmdline(&vec!["fc".to_string(), "blah".into(), "blob".into()]) {
-            Err(fc::MyError::WrongSyntax) => Ok(()),
+            Err(fc::FcError::WrongSyntax) => Ok(()),
             actual => Err(String::from(format!(
                 "Expect {:?}, got {:?} instead",
-                fc::MyError::WrongSyntax,
+                fc::FcError::WrongSyntax,
                 actual
             ))),
         }

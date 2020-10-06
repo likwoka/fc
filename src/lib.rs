@@ -4,10 +4,20 @@
 
 /// Possible errors from the conversion.
 #[derive(Debug)]
-pub enum MyError {
+pub enum FcError {
     UnitNotRecognized,
     ValueNotANumber,
     WrongSyntax,
+}
+
+impl FcError {
+    pub fn to_str(&self) -> &str {
+        match &self {
+            FcError::UnitNotRecognized => "Unit not recognized!",
+            FcError::ValueNotANumber => "Value not a number!",
+            FcError::WrongSyntax => "Wrong syntax!"
+        }
+    }
 }
 
 /// Temperature unit.
@@ -67,23 +77,23 @@ impl T {
 /// fc::parse_str_to_t("74");   // returns T {value:74.0, unit: TUnit::Unknown}
 /// fc::parse_str_to_t("abc");  // MyError::ValueNotANumber
 /// ```
-pub fn parse_str_to_t(arg: &str) -> Result<T, MyError> {
+pub fn parse_str_to_t(arg: &str) -> Result<T, FcError> {
     // the last char has to be c, C, f, F, or nothing.
     let unit = match arg.chars().last().unwrap() {
         'c' | 'C' => TUnit::C,
         'f' | 'F' => TUnit::F,
         u if u.is_digit(10) => TUnit::Unknown,
-        _ => return Err(MyError::UnitNotRecognized),
+        _ => return Err(FcError::UnitNotRecognized),
     };
 
     match unit {
         TUnit::Unknown => match arg.parse::<f32>() {
             Ok(value) => return Ok(T { value, unit }),
-            Err(_) => return Err(MyError::ValueNotANumber),
+            Err(_) => return Err(FcError::ValueNotANumber),
         },
         _ => match arg[0..arg.len() - 1].parse::<f32>() {
             Ok(value) => return Ok(T { value, unit }),
-            Err(_) => return Err(MyError::ValueNotANumber),
+            Err(_) => return Err(FcError::ValueNotANumber),
         },
     }
 }
@@ -112,31 +122,31 @@ mod tests {
     use super::*;
 
     #[test]
-    fn parse_string_ok_lowercase_f() -> Result<(), MyError> {
+    fn parse_string_ok_lowercase_f() -> Result<(), FcError> {
         parse_str_to_t("65f")?;
         Ok(())
     }
 
     #[test]
-    fn parse_string_ok_uppercase_f() -> Result<(), MyError> {
+    fn parse_string_ok_uppercase_f() -> Result<(), FcError> {
         parse_str_to_t("65F")?;
         Ok(())
     }
 
     #[test]
-    fn parse_string_ok_lowercase_c() -> Result<(), MyError> {
+    fn parse_string_ok_lowercase_c() -> Result<(), FcError> {
         parse_str_to_t("23c")?;
         Ok(())
     }
 
     #[test]
-    fn parse_string_ok_uppercase_c() -> Result<(), MyError> {
+    fn parse_string_ok_uppercase_c() -> Result<(), FcError> {
         parse_str_to_t("23C")?;
         Ok(())
     }
 
     #[test]
-    fn parse_string_ok_no_unit() -> Result<(), MyError> {
+    fn parse_string_ok_no_unit() -> Result<(), FcError> {
         parse_str_to_t("30.4")?;
         Ok(())
     }
@@ -145,10 +155,10 @@ mod tests {
     fn parse_string_err_invalid() -> Result<(), String> {
         //assert_eq!(Err(MyError::UnitNotRecognized), parse_string("30INVALID"));
         match parse_str_to_t("Not even a string") {
-            Err(MyError::UnitNotRecognized) => Ok(()),
+            Err(FcError::UnitNotRecognized) => Ok(()),
             _ => Err(String::from(format!(
                 "Expect {:?}, but got Ok instead",
-                MyError::UnitNotRecognized
+                FcError::UnitNotRecognized
             ))),
         }
     }
@@ -156,10 +166,10 @@ mod tests {
     #[test]
     fn parse_string_err_invalid2() -> Result<(), String> {
         match parse_str_to_t("38E") {
-            Err(MyError::UnitNotRecognized) => Ok(()),
+            Err(FcError::UnitNotRecognized) => Ok(()),
             _ => Err(String::from(format!(
                 "Expect {:?}, but got Ok instead",
-                MyError::UnitNotRecognized
+                FcError::UnitNotRecognized
             ))),
         }
     }
@@ -167,10 +177,10 @@ mod tests {
     #[test]
     fn parse_string_err_invalid3() -> Result<(), String> {
         match parse_str_to_t("InvalidC") {
-            Err(MyError::ValueNotANumber) => Ok(()),
+            Err(FcError::ValueNotANumber) => Ok(()),
             _ => Err(String::from(format!(
                 "Expect {:?}, but got Ok instead",
-                MyError::ValueNotANumber
+                FcError::ValueNotANumber
             ))),
         }
     }
@@ -178,10 +188,10 @@ mod tests {
     #[test]
     fn parse_string_err_invalid4() -> Result<(), String> {
         match parse_str_to_t("Invalidf") {
-            Err(MyError::ValueNotANumber) => Ok(()),
+            Err(FcError::ValueNotANumber) => Ok(()),
             _ => Err(String::from(format!(
                 "Expect {:?}, but got Ok instead",
-                MyError::ValueNotANumber
+                FcError::ValueNotANumber
             ))),
         }
     }
