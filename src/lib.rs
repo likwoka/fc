@@ -1,6 +1,7 @@
 //! # fc
 //!
 //! A library of functions to converts temperature between Fahrenheit and Celsius.
+use std::fmt;
 
 /// Possible errors from the conversion.
 #[derive(Debug)]
@@ -29,6 +30,12 @@ pub enum TUnit {
     C,
     /// Not specified in input
     Unknown,
+}
+
+impl fmt::Display for TUnit {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 /// Temperature.
