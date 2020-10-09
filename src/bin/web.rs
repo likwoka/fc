@@ -33,12 +33,10 @@ async fn bye(params: web::Form<RawT>) -> impl Responder {
     };
     match fc::parse_str_to_t(&format!("{}{}", params.value, params.unit)) {
         Ok(t) => {
-            HttpResponse::Ok().body(format!("{:?}", t))
-            //let r = fc::convert(t);
-            //HelloTpl { error: "", input: &None, output: &None }.into_response()
+            let r = fc::convert(t);
+            HelloTpl { error: "", input: &Some(t), output: &Some(r) }.into_response()
         },
-        _ => HttpResponse::Ok().body("blah 333"),
-        //Err(e) => HelloTpl { error: e.to_str(), input: &None, output: &None }.into_response()
+        Err(e) => HelloTpl { error: e.to_str(), input: &None, output: &None }.into_response()
     }
 }
 
