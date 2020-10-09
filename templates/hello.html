@@ -35,13 +35,13 @@
             <p><input type="submit" value="Convert!"/></p>
         </form>
         {% if error.len() > 0 %}
-        <p style="color:#fd1e68; font-size: x-large;">{{ error }}</p>
+        <p style="color:#fd1e68; font-size: xx-large;">{{ error }}</p>
         {% endif %}        
 
         {% match output %}
             {% when Some with (tvec) %}
                 {% for t in tvec %}
-                    <p style="font-size: x-large;">{{ input.unwrap().value }} {{ input.unwrap().unit }} &rarr; {{ t.value }} {{ t.unit }} </p>
+                    <p style="font-size: xx-large;">{{ input.unwrap().value }} {{ input.unwrap().unit }} &rarr; {{ t.value }} {{ t.unit }} </p>
                 {% endfor %}
             {% when None %}
         {% endmatch %}
