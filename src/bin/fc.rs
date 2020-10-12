@@ -52,7 +52,7 @@ fn main() {
             println!("F to C: (f - 32.0) / 1.8");
             println!("C to F: c * 1.8 + 32.0");
         }
-        Err(e) =>  println!("{}", e.to_str()),
+        Err(e) => println!("{}", e.to_str()),
     }
 }
 

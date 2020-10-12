@@ -16,7 +16,7 @@ impl FcError {
         match &self {
             FcError::UnitNotRecognized => "Unit not recognized!",
             FcError::ValueNotANumber => "Value not a number!",
-            FcError::WrongSyntax => "Wrong syntax!"
+            FcError::WrongSyntax => "Wrong syntax!",
         }
     }
 }
