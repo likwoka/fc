@@ -1,7 +1,6 @@
 //! # fc
 //!
 //! A library of functions to converts temperature between Fahrenheit and Celsius.
-use std::fmt;
 
 /// Possible errors from the conversion.
 #[derive(Debug)]
@@ -21,87 +20,86 @@ impl FcError {
     }
 }
 
-/// Temperature unit.
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub enum TUnit {
-    /// Fahrenheit
-    F,
-    /// Celsius
-    C,
-    /// Not specified in input
-    Unknown,
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum T {
+    F(f32),
+    C(f32),
+    Unknown(f32),
 }
 
-impl fmt::Display for TUnit {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
+impl T {
+    pub fn to_c(&self) -> T {
+        match self {
+            T::C(_) => self.clone(),
+            T::F(v) | T::Unknown(v) => {
+                T::C(round_to_one_dec((v - 32.0) / 1.8))
+            }
+        }
     }
-}
 
-/// Temperature.
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub struct T {
-    pub value: f32,
-    pub unit: TUnit,
+    /// Convert value from c to f.
+    pub fn to_f(&self) -> T {
+        match self {
+            T::F(_) => self.clone(),
+            T::C(v) | T::Unknown(v) => {
+                T::F(round_to_one_dec(v * 1.8 + 32.0))
+            }
+        }
+    }
+
+    pub fn unit(&self) -> &str {
+        match self {
+            T::C(_) => "C",
+            T::F(_) => "F",
+            T::Unknown(_) => "",
+        }
+    }
+
+    pub fn value(&self) -> f32 {
+        match self {
+            T::C(v) | T::F(v) | T::Unknown(v) => *v
+        }
+    }
 }
 
 fn round_to_one_dec(f: f32) -> f32 {
     (f * 10.0).round() / 10.0
 }
 
-impl T {
-    /// Convert value from f to c.
-    pub fn to_c(&self) -> T {
-        match self.unit {
-            TUnit::C => self.clone(),
-            _ => T {
-                value: round_to_one_dec((self.value - 32.0) / 1.8),
-                unit: TUnit::C,
-            },
-        }
-    }
-
-    /// Convert value from c to f.
-    pub fn to_f(&self) -> T {
-        match self.unit {
-            TUnit::F => self.clone(),
-            _ => T {
-                value: round_to_one_dec(self.value * 1.8 + 32.0),
-                unit: TUnit::F,
-            },
-        }
-    }
-}
 
 /// Parse a string input (string slice) to a temperature (T).
 ///
 /// # Examples
 /// ```
-/// fc::parse_str_to_t("23C");  // returns T {value:23.0, unit: TUnit::C}
-/// fc::parse_str_to_t("23c");  // returns T {value:23.0, unit: TUnit::C}
-/// fc::parse_str_to_t("74F");  // returns T {value:74.0, unit: TUnit::F}
-/// fc::parse_str_to_t("74f");  // returns T {value:74.0, unit: TUnit::F}
-/// fc::parse_str_to_t("74");   // returns T {value:74.0, unit: TUnit::Unknown}
-/// fc::parse_str_to_t("abc");  // MyError::ValueNotANumber
+/// fc::parse_str_to_t("23C");  // returns T::C(23.0)
+/// fc::parse_str_to_t("23c");  // returns T::C(23.0)
+/// fc::parse_str_to_t("74F");  // returns T::F(74.0)
+/// fc::parse_str_to_t("74f");  // returns T::F(74.0)
+/// fc::parse_str_to_t("74");   // returns T::Unknown(74.0)
+/// fc::parse_str_to_t("abc");  // FcError::ValueNotANumber
 /// ```
 pub fn parse_str_to_t(arg: &str) -> Result<T, FcError> {
     // the last char has to be c, C, f, F, or nothing.
-    let unit = match arg.chars().last().unwrap() {
-        'c' | 'C' => TUnit::C,
-        'f' | 'F' => TUnit::F,
-        u if u.is_digit(10) => TUnit::Unknown,
-        _ => return Err(FcError::UnitNotRecognized),
-    };
-
-    match unit {
-        TUnit::Unknown => match arg.parse::<f32>() {
-            Ok(value) => return Ok(T { value, unit }),
-            Err(_) => return Err(FcError::ValueNotANumber),
+    match arg.chars().last().unwrap() {
+        'c' | 'C' => {
+            match arg[0..arg.len() - 1].parse::<f32>() {
+                Ok(value) => return Ok(T::C(value)),
+                Err(_) => return Err(FcError::ValueNotANumber),
+            }
         },
-        _ => match arg[0..arg.len() - 1].parse::<f32>() {
-            Ok(value) => return Ok(T { value, unit }),
-            Err(_) => return Err(FcError::ValueNotANumber),
+        'f' | 'F' => {
+            match arg[0..arg.len() - 1].parse::<f32>() {
+                Ok(value) => return Ok(T::F(value)),
+                Err(_) => return Err(FcError::ValueNotANumber),
+            }
         },
+        u if u.is_digit(10) => {
+            match arg.parse::<f32>() {
+                Ok(value) => return Ok(T::Unknown(value)),
+                Err(_) => return Err(FcError::ValueNotANumber),
+            }
+        },
+        _ => Err(FcError::UnitNotRecognized),
     }
 }
 
@@ -109,18 +107,18 @@ pub fn parse_str_to_t(arg: &str) -> Result<T, FcError> {
 ///
 /// # Examples
 /// ```
-/// // returns 1-element vector of T {value: 73.4, fc::TUnit::F}
-/// fc::convert(fc::T {value: 23.0, unit: fc::TUnit::C});
-/// // returns 1-element vector of T {value: 23.0, fc::TUnit::C}   
-/// fc::convert(fc::T {value: 73.4, unit: fc::TUnit::F});
-/// // returns 2-element vector of T {value: 165.2, fc::TUnit::F}, {value: 23.3, fc::TUnit::C}
-/// fc::convert(fc::T {value: 74.0, unit: fc::TUnit::Unknown});
+/// // returns 1-element vector of T::F(73.4)
+/// fc::convert(fc::T::C(23.0));
+/// // returns 1-element vector of T::C23.0)   
+/// fc::convert(fc::T::F(73.4));
+/// // returns 2-element vector of T::F(165.2), T::C(23.3)
+/// fc::convert(fc::T::Unknown(74.0));
 /// ```
 pub fn convert(input: T) -> Vec<T> {
-    match input.unit {
-        TUnit::F => vec![input.to_c()],
-        TUnit::C => vec![input.to_f()],
-        TUnit::Unknown => vec![input.to_f(), input.to_c()],
+    match input {
+        T::F(_) => vec![input.to_c()],
+        T::C(_) => vec![input.to_f()],
+        T::Unknown(_) => vec![input.to_f(), input.to_c()],
     }
 }
 
@@ -174,10 +172,7 @@ mod tests {
     fn parse_string_err_invalid2() -> Result<(), String> {
         match parse_str_to_t("38E") {
             Err(FcError::UnitNotRecognized) => Ok(()),
-            _ => Err(String::from(format!(
-                "Expect {:?}, but got Ok instead",
-                FcError::UnitNotRecognized
-            ))),
+            _ => Err(String::from(format!("Expect {:?}, but got Ok instead", FcError::UnitNotRecognized))),
         }
     }
 
@@ -185,10 +180,7 @@ mod tests {
     fn parse_string_err_invalid3() -> Result<(), String> {
         match parse_str_to_t("InvalidC") {
             Err(FcError::ValueNotANumber) => Ok(()),
-            _ => Err(String::from(format!(
-                "Expect {:?}, but got Ok instead",
-                FcError::ValueNotANumber
-            ))),
+            _ => Err(String::from(format!("Expect {:?}, but got Ok instead", FcError::ValueNotANumber))),
         }
     }
 
@@ -196,59 +188,29 @@ mod tests {
     fn parse_string_err_invalid4() -> Result<(), String> {
         match parse_str_to_t("Invalidf") {
             Err(FcError::ValueNotANumber) => Ok(()),
-            _ => Err(String::from(format!(
-                "Expect {:?}, but got Ok instead",
-                FcError::ValueNotANumber
-            ))),
+            _ => Err(String::from(format!("Expect {:?}, but got Ok instead", FcError::ValueNotANumber))),
         }
     }
 
     #[test]
     fn convert_ok_from_c() {
-        let actual = convert(T {
-            value: 23.0,
-            unit: TUnit::C,
-        });
+        let actual = convert(T::C(23.0));
         assert_eq!(1, actual.len());
-        assert_eq!(
-            T {
-                value: 73.4,
-                unit: TUnit::F
-            },
-            actual[0]
-        );
+        assert_eq!(T::F(73.4), actual[0]);
     }
 
     #[test]
     fn convert_ok_from_f() {
-        let actual = convert(T {
-            value: 73.4,
-            unit: TUnit::F,
-        });
+        let actual = convert(T::F(73.4));
         assert_eq!(1, actual.len());
-        assert!((23.0 - actual[0].value).abs() <= f32::EPSILON);
+        assert_eq!(T::C(23.0), actual[0]);
     }
 
     #[test]
     fn convert_ok_from_unknown() {
-        let actual = convert(T {
-            value: 73.4,
-            unit: TUnit::Unknown,
-        });
+        let actual = convert(T::Unknown(73.4));
         assert_eq!(2, actual.len());
-        assert_eq!(
-            T {
-                value: 164.1,
-                unit: TUnit::F
-            },
-            actual[0]
-        );
-        assert_eq!(
-            T {
-                value: 23.0,
-                unit: TUnit::C
-            },
-            actual[1]
-        );
+        assert_eq!(T::F(164.1), actual[0]);
+        assert_eq!(T::C(23.0), actual[1]);
     }
 }

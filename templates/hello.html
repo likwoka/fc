@@ -9,14 +9,14 @@
             <input type="number" name="value" id="value" 
             {% match input %}
                 {% when Some with (t) %}
-                    value="{{t.value}}"
+                    value="{{t.value()}}"
                 {% when None %}
             {% endmatch %}
             required />
             <input type="radio" name="unit" id="F" value="F" 
             {% match input %}
                 {% when Some with (t) %}
-                    {% if t.unit == fc::TUnit::F %}
+                    {% if t.unit() == "F" %}
                         checked
                     {% endif %}
                 {% when None %}
@@ -25,7 +25,7 @@
             <input type="radio" name="unit" id="C" value="C" 
             {% match input %}
                 {% when Some with (t) %}
-                    {% if t.unit == fc::TUnit::C %}
+                    {% if t.unit() == "C" %}
                         checked
                     {% endif %}
                 {% when None %}
@@ -40,7 +40,7 @@
         {% match output %}
             {% when Some with (tvec) %}
                 {% for t in tvec %}
-                    <p style="font-size: xx-large;">{{ input.unwrap().value }} {{ input.unwrap().unit }} &rarr; {{ t.value }} {{ t.unit }} </p>
+                    <p style="font-size: xx-large;">{{ input.unwrap().value() }} {{ input.unwrap().unit() }} &rarr; {{ t.value() }} {{ t.unit() }} </p>
                 {% endfor %}
             {% when None %}
         {% endmatch %}
