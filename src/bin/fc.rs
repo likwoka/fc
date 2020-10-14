@@ -40,20 +40,11 @@ fn main() {
         Ok(CmdLineMode::ConvertTemperature(i)) => {
             let output = fc::convert(i);
             for o in output {
-                match o {
-                    fc::T::C(_) => {
-                        println!("{:?} => {:?}", i, o)
-                    },
-                    fc::T::F(_) => {
-                        println!("{:?} => {:?}", i, o)
-                    },
-                    _ => (),
-                }
-                // let i_unit = match o.unit {
-                //     fc::TUnit::C => fc::TUnit::F,
-                //     _ => fc::TUnit::C,
-                // };
-                // println!("{}{:?} => {:.1}{:?}", i.value, i_unit, o.value, o.unit)
+                let i_unit: &str = match o.unit() {
+                    "C" => "F",
+                    _ => "C",
+                };
+                println!("{}{} => {}{}", i.value(), i_unit, o.value(), o.unit());
             }
         }
         Ok(CmdLineMode::PrintHelp) => println!("{}", HELP_MSG),
