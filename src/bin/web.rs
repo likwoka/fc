@@ -1,5 +1,4 @@
 //! Web HTML and API
-use actix_web::HttpResponse;
 use actix_web::{get, post, web, App, HttpServer, Responder};
 use askama_actix::{Template, TemplateIntoResponse};
 use fc;
@@ -16,7 +15,7 @@ struct HelloTpl<'a> {
 #[derive(Serialize, Deserialize)]
 struct TFormData {
     value: f32,
-    unit: String,
+    unit: Option<String>,
 }
 
 #[get("/")]
@@ -31,13 +30,7 @@ async fn hello() -> impl Responder {
 
 #[post("/")]
 async fn bye(params: web::Form<TFormData>) -> impl Responder {
-    // TODO: how does Actix Form works -- when there is no unit given??? Because it causes parser error
-    match &params.unit[..] {
-        "" => HttpResponse::Ok().body("unit is empty string"),
-        _ => HttpResponse::Ok().body("blah"),
-    };
-
-    match fc::parse_str_to_t(&format!("{}{}", params.value, params.unit)) {
+    match fc::parse_str_to_t(&format!("{}{}", params.value, params.unit.as_ref().unwrap_or(&String::from("")))) {
         Ok(t) => {
             let r = fc::convert(t);
             HelloTpl {
