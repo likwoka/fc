@@ -31,9 +31,7 @@ impl T {
     pub fn to_c(&self) -> T {
         match self {
             T::C(_) => self.clone(),
-            T::F(v) | T::Unknown(v) => {
-                T::C(round_to_one_dec((v - 32.0) / 1.8))
-            }
+            T::F(v) | T::Unknown(v) => T::C(round_to_one_dec((v - 32.0) / 1.8)),
         }
     }
 
@@ -41,9 +39,7 @@ impl T {
     pub fn to_f(&self) -> T {
         match self {
             T::F(_) => self.clone(),
-            T::C(v) | T::Unknown(v) => {
-                T::F(round_to_one_dec(v * 1.8 + 32.0))
-            }
+            T::C(v) | T::Unknown(v) => T::F(round_to_one_dec(v * 1.8 + 32.0)),
         }
     }
 
@@ -57,7 +53,7 @@ impl T {
 
     pub fn value(&self) -> f32 {
         match self {
-            T::C(v) | T::F(v) | T::Unknown(v) => *v
+            T::C(v) | T::F(v) | T::Unknown(v) => *v,
         }
     }
 }
@@ -65,7 +61,6 @@ impl T {
 fn round_to_one_dec(f: f32) -> f32 {
     (f * 10.0).round() / 10.0
 }
-
 
 /// Parse a string input (string slice) to a temperature (T).
 ///
@@ -81,23 +76,17 @@ fn round_to_one_dec(f: f32) -> f32 {
 pub fn parse_str_to_t(arg: &str) -> Result<T, FcError> {
     // the last char has to be c, C, f, F, or nothing.
     match arg.chars().last().unwrap() {
-        'c' | 'C' => {
-            match arg[0..arg.len() - 1].parse::<f32>() {
-                Ok(value) => return Ok(T::C(value)),
-                Err(_) => return Err(FcError::ValueNotANumber),
-            }
+        'c' | 'C' => match arg[0..arg.len() - 1].parse::<f32>() {
+            Ok(value) => return Ok(T::C(value)),
+            Err(_) => return Err(FcError::ValueNotANumber),
         },
-        'f' | 'F' => {
-            match arg[0..arg.len() - 1].parse::<f32>() {
-                Ok(value) => return Ok(T::F(value)),
-                Err(_) => return Err(FcError::ValueNotANumber),
-            }
+        'f' | 'F' => match arg[0..arg.len() - 1].parse::<f32>() {
+            Ok(value) => return Ok(T::F(value)),
+            Err(_) => return Err(FcError::ValueNotANumber),
         },
-        u if u.is_digit(10) => {
-            match arg.parse::<f32>() {
-                Ok(value) => return Ok(T::Unknown(value)),
-                Err(_) => return Err(FcError::ValueNotANumber),
-            }
+        u if u.is_digit(10) => match arg.parse::<f32>() {
+            Ok(value) => return Ok(T::Unknown(value)),
+            Err(_) => return Err(FcError::ValueNotANumber),
         },
         _ => Err(FcError::UnitNotRecognized),
     }
@@ -172,7 +161,10 @@ mod tests {
     fn parse_string_err_invalid2() -> Result<(), String> {
         match parse_str_to_t("38E") {
             Err(FcError::UnitNotRecognized) => Ok(()),
-            _ => Err(String::from(format!("Expect {:?}, but got Ok instead", FcError::UnitNotRecognized))),
+            _ => Err(String::from(format!(
+                "Expect {:?}, but got Ok instead",
+                FcError::UnitNotRecognized
+            ))),
         }
     }
 
@@ -180,7 +172,10 @@ mod tests {
     fn parse_string_err_invalid3() -> Result<(), String> {
         match parse_str_to_t("InvalidC") {
             Err(FcError::ValueNotANumber) => Ok(()),
-            _ => Err(String::from(format!("Expect {:?}, but got Ok instead", FcError::ValueNotANumber))),
+            _ => Err(String::from(format!(
+                "Expect {:?}, but got Ok instead",
+                FcError::ValueNotANumber
+            ))),
         }
     }
 
@@ -188,7 +183,10 @@ mod tests {
     fn parse_string_err_invalid4() -> Result<(), String> {
         match parse_str_to_t("Invalidf") {
             Err(FcError::ValueNotANumber) => Ok(()),
-            _ => Err(String::from(format!("Expect {:?}, but got Ok instead", FcError::ValueNotANumber))),
+            _ => Err(String::from(format!(
+                "Expect {:?}, but got Ok instead",
+                FcError::ValueNotANumber
+            ))),
         }
     }
 

@@ -30,7 +30,11 @@ async fn hello() -> impl Responder {
 
 #[post("/")]
 async fn bye(params: web::Form<TFormData>) -> impl Responder {
-    match fc::parse_str_to_t(&format!("{}{}", params.value, params.unit.as_ref().unwrap_or(&String::from("")))) {
+    match fc::parse_str_to_t(&format!(
+        "{}{}",
+        params.value,
+        params.unit.as_ref().unwrap_or(&String::from(""))
+    )) {
         Ok(t) => {
             let r = fc::convert(t);
             HelloTpl {
