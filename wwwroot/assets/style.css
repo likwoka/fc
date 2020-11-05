@@ -1,5 +1,4 @@
 body { display: flex; flex-flow: column nowrap; align-items: center; justify-content: center; }
-form { width: 10rem; }
 html { font-size: calc(1em + 4vw); font-family: Helvetica, sans-serif }
 button, select, option { font-size: inherit; font-family: inherit; border-radius: 4px; }
 input { font-size: inherit; font-family: inherit; }
