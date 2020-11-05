@@ -1,4 +1,5 @@
 //! Web HTML and API
+use actix_files;
 use actix_web::{get, post, web, App, HttpServer, Responder};
 use askama_actix::{Template, TemplateIntoResponse};
 use fc;
@@ -55,7 +56,11 @@ async fn bye(params: web::Form<TFormData>) -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| App::new().service(hello).service(bye))
+    HttpServer::new(||
+        App::new()
+        .service(hello)
+        .service(bye)
+        .service(actix_files::Files::new("/assets", "./wwwroot/assets").show_files_listing()))
         .bind("127.0.0.1:8080")?
         .run()
         .await
