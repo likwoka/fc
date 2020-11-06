@@ -5,21 +5,21 @@ use fc;
 use serde::{Deserialize, Serialize};
 
 #[derive(Template)]
-#[template(path = "hello.html", print = "all")]
-struct HelloTpl<'a> {
+#[template(path = "hello.html", print = "none")]
+pub struct HelloTpl<'a> {
     error: &'a str,
     input: &'a Option<fc::T>,
     output: &'a Option<Vec<fc::T>>,
 }
 
 #[derive(Serialize, Deserialize)]
-struct TFormData {
+pub struct TFormData {
     value: f32,
     unit: Option<String>,
 }
 
 #[get("/")]
-async fn hello() -> impl Responder {
+pub async fn hello() -> impl Responder {
     HelloTpl {
         error: "",
         input: &None,
@@ -29,7 +29,7 @@ async fn hello() -> impl Responder {
 }
 
 #[post("/")]
-async fn bye(params: web::Form<TFormData>) -> impl Responder {
+pub async fn bye(params: web::Form<TFormData>) -> impl Responder {
     match fc::parse_str_to_t(&format!(
         "{}{}",
         params.value,
