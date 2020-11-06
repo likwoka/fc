@@ -14,7 +14,7 @@
     <body>
         <form action="/" method="post">
             <div>
-            <input type="number" name="value" id="value" min="-99999" max="99999" style="max-width: 3em;"" 
+            <input type="number" name="value" id="value" min="-99999" max="99999" style="max-width: 20vw;"
             {% match input %}
                 {% when Some with (t) %}
                     value="{{t.value()}}"
