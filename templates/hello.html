@@ -4,7 +4,12 @@
         <title>fc</title>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link title="House Style" rel=STYLESHEET href="/assets/style.css" type="text/css">
+        <style>
+        body { display: flex; flex-flow: column wrap; align-items: center; justify-content: center; }
+        html { font-size: calc(1em + 4vw); font-family: Helvetica, sans-serif; }
+        button, input, select, option { font-size: inherit; font-family: inherit; border-radius: 4px; margin-top: 20%; margin-bottom: 0px;}
+        input { border-radius: unset; }
+        </style>        
     </head>
     <body>
         <form action="/" method="post">
@@ -15,8 +20,7 @@
                     value="{{t.value()}}"
                 {% when None %}
             {% endmatch %}
-            autofocus
-            required />
+            autofocus required onfocus="this.select();"/>
             <select name="unit" id="unit-select">
                 <option value="">&nbsp;?&nbsp;</option>
                 <option value="F"
@@ -38,9 +42,7 @@
                 {% endmatch %}
                 >&#8451;</option>
             </select>
-            </div>
-            <div>
-                <button type="submit" value="Convert">Convert!</button>
+            <button type="submit" value="Go">Go</button>
             </div>
         </form>
         {% if error.len() > 0 %}
