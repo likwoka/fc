@@ -1,5 +1,6 @@
 # fc
 - Toy program to learn about Rust (2020 Oct)
+- takes an numeric input, converts to C or F
 - a command line program and a web application
 - using rust, actix_web
 - separated into 3 modules -- the core logic, the CLI, the web app.
