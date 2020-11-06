@@ -7,14 +7,14 @@
         <style>
         body { display: flex; flex-flow: column wrap; align-items: center; justify-content: center; }
         html { font-size: calc(1em + 4vw); font-family: Helvetica, sans-serif; }
-        button, input, select, option { font-size: inherit; font-family: inherit; border-radius: unset; margin-top: 20%; margin-bottom: 0px;}
+        button, input, select, option { font-size: inherit; font-family: inherit; border-radius: unset; margin-top: 20%; margin-bottom: 0px; }
         :focus { outline: lightskyblue solid 4px; }
         </style>        
     </head>
     <body>
         <form action="/" method="post">
             <div>
-            <input type="number" name="value" id="value" min="-99999" max="99999"
+            <input type="number" name="value" id="value" min="-99999" max="99999" style="max-width: 3em;"" 
             {% match input %}
                 {% when Some with (t) %}
                     value="{{t.value()}}"
