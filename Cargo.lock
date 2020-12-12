@@ -607,10 +607,15 @@ dependencies = [
 [[package]]
 name = "fc"
 version = "0.4.0"
+
+[[package]]
+name = "fcweb"
+version = "0.4.0"
 dependencies = [
  "actix-web",
  "askama",
  "askama_actix",
+ "fc",
  "serde",
 ]
 
