@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en-US">
     <head>
         <title>fc</title>
         <meta charset="utf-8"/>
@@ -12,8 +12,9 @@
         </style>        
     </head>
     <body>
-        <form action="/" method="post">
+        <form action="/" method="post" title="A form for temperature conversion">
             <div>
+            <label for="value" hidden>Input temperature value</label>
             <input type="number" name="value" id="value" min="-99999" max="99999" style="max-width: 20vw;"
             {% match input %}
                 {% when Some with (t) %}
@@ -21,6 +22,7 @@
                 {% when None %}
             {% endmatch %}
             autofocus required onfocus="this.select();"/>
+            <label for="unit-select" hidden>Input temperature unit</label>
             <select name="unit" id="unit-select">
                 <option value="">&nbsp;?&nbsp;</option>
                 <option value="F"
@@ -47,15 +49,15 @@
         </form>
         {% if error.len() > 0 %}
         <div>
-            <p style="color:#fd1e68;">{{ error }}</p>
+            <p role="alert" style="color:#fd1e68;">{{ error }}</p>
         </div>
         {% endif %}        
 
         {% match output %}
             {% when Some with (tvec) %}
-            <div>
+            <div title="Conversion result">
                 {% for t in tvec %}
-                    <p>{{ input.unwrap().value() }} {{ input.unwrap().unit() }} &rarr; {{ t.value() }} {{ t.unit() }} </p>
+                    <p title="Input to output">{{ input.unwrap().value() }} {{ input.unwrap().unit() }} &rarr; {{ t.value() }} {{ t.unit() }} </p>
                 {% endfor %}
             </div>
             {% when None %}
