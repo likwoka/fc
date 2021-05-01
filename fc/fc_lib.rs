@@ -66,12 +66,12 @@ fn round_to_one_dec(f: f32) -> f32 {
 ///
 /// # Examples
 /// ```
-/// fc::parse_str_to_t("23C");  // returns T::C(23.0)
-/// fc::parse_str_to_t("23c");  // returns T::C(23.0)
-/// fc::parse_str_to_t("74F");  // returns T::F(74.0)
-/// fc::parse_str_to_t("74f");  // returns T::F(74.0)
-/// fc::parse_str_to_t("74");   // returns T::Unknown(74.0)
-/// fc::parse_str_to_t("abc");  // FcError::ValueNotANumber
+/// fc_lib::parse_str_to_t("23C");  // returns T::C(23.0)
+/// fc_lib::parse_str_to_t("23c");  // returns T::C(23.0)
+/// fc_lib::parse_str_to_t("74F");  // returns T::F(74.0)
+/// fc_lib::parse_str_to_t("74f");  // returns T::F(74.0)
+/// fc_lib::parse_str_to_t("74");   // returns T::Unknown(74.0)
+/// fc_lib::parse_str_to_t("abc");  // FcError::ValueNotANumber
 /// ```
 pub fn parse_str_to_t(arg: &str) -> Result<T, FcError> {
     // the last char has to be c, C, f, F, or nothing.
@@ -97,11 +97,11 @@ pub fn parse_str_to_t(arg: &str) -> Result<T, FcError> {
 /// # Examples
 /// ```
 /// // returns 1-element vector of T::F(73.4)
-/// fc::convert(fc::T::C(23.0));
+/// fc_lib::convert(fc_lib::T::C(23.0));
 /// // returns 1-element vector of T::C23.0)   
-/// fc::convert(fc::T::F(73.4));
+/// fc_lib::convert(fc_lib::T::F(73.4));
 /// // returns 2-element vector of T::F(165.2), T::C(23.3)
-/// fc::convert(fc::T::Unknown(74.0));
+/// fc_lib::convert(fc_lib::T::Unknown(74.0));
 /// ```
 pub fn convert(input: T) -> Vec<T> {
     match input {
