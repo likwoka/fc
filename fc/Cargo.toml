@@ -10,3 +10,11 @@ repository = "https://github.com/likwoka/fc.git"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+
+[[bin]]
+name = "fc"
+path = "fc.rs"
+
+[lib]
+name = "fc_lib"
+path = "fc_lib.rs"

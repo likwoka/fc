@@ -3,7 +3,7 @@
 //! A command line program that converts temperature between Fahrenheit and Celsius.
 use std::env;
 
-use fc;
+use fc_lib;
 
 const HELP_MSG: &str = r"fc -- convert temperature between Fahrenheit and Celsius
 Usage:
@@ -18,19 +18,19 @@ fc -h    # print this help message";
 
 #[derive(Debug)]
 enum CmdLineMode {
-    ConvertTemperature(fc::T),
+    ConvertTemperature(fc_lib::T),
     PrintFormula,
     PrintHelp,
 }
 
-fn parse_cmdline(args: &Vec<String>) -> Result<CmdLineMode, fc::FcError> {
+fn parse_cmdline(args: &Vec<String>) -> Result<CmdLineMode, fc_lib::FcError> {
     match args.len() {
         2 if args[1] == "-h" => Ok(CmdLineMode::PrintHelp),
         2 if args[1] == "-f" => Ok(CmdLineMode::PrintFormula),
-        2 => Ok(CmdLineMode::ConvertTemperature(fc::parse_str_to_t(
+        2 => Ok(CmdLineMode::ConvertTemperature(fc_lib::parse_str_to_t(
             &args[1],
         )?)),
-        _ => Err(fc::FcError::WrongSyntax),
+        _ => Err(fc_lib::FcError::WrongSyntax),
     }
 }
 
@@ -38,7 +38,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     match parse_cmdline(&args) {
         Ok(CmdLineMode::ConvertTemperature(i)) => {
-            let output = fc::convert(i);
+            let output = fc_lib::convert(i);
             for o in output {
                 let i_unit: &str = match o.unit() {
                     "C" => "F",
@@ -87,10 +87,10 @@ mod tests {
     #[test]
     fn parse_cmdline_err_too_little_params() -> Result<(), String> {
         match parse_cmdline(&vec!["fc".to_string()]) {
-            Err(fc::FcError::WrongSyntax) => Ok(()),
+            Err(fc_lib::FcError::WrongSyntax) => Ok(()),
             actual => Err(String::from(format!(
                 "Expect {:?}, got {:?} instead",
-                fc::FcError::WrongSyntax,
+                fc_lib::FcError::WrongSyntax,
                 actual
             ))),
         }
@@ -99,10 +99,10 @@ mod tests {
     #[test]
     fn parse_cmdline_err_too_many_params() -> Result<(), String> {
         match parse_cmdline(&vec!["fc".to_string(), "blah".into(), "blob".into()]) {
-            Err(fc::FcError::WrongSyntax) => Ok(()),
+            Err(fc_lib::FcError::WrongSyntax) => Ok(()),
             actual => Err(String::from(format!(
                 "Expect {:?}, got {:?} instead",
-                fc::FcError::WrongSyntax,
+                fc_lib::FcError::WrongSyntax,
                 actual
             ))),
         }
