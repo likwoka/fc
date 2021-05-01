@@ -41,7 +41,7 @@ pub async fn bye(params: web::Form<TFormData>) -> impl Responder {
                 output: &Some(r),
             }
             .into_response()
-        }
+        },
         Err(e) => HelloTpl {
             error: e.to_str(),
             input: &None,
@@ -55,6 +55,14 @@ pub async fn bye(params: web::Form<TFormData>) -> impl Responder {
 pub async fn webmain(ipaddr_n_port: net::SocketAddrV4) -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
+            // .wrap_fn(|req, srv| {
+            //     let fut = srv.call(req);
+            //     async {
+            //         let mut res = fut.await?;
+            //         res.headers_mut().insert("Permissions-Policy", "interest-cohort=()");
+            //         Ok(res)
+            //     }
+            // })
             .route("/", web::get().to(hello))
             .route("/", web::post().to(bye))
     })
