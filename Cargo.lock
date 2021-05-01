@@ -609,6 +609,7 @@ version = "0.4.0"
 name = "fcweb"
 version = "0.4.0"
 dependencies = [
+ "actix-service",
  "actix-web",
  "askama",
  "askama_actix",
