@@ -1,7 +1,7 @@
 //! fcweb
 //!
 //! A web app for temperature conversions.
-use fcweb;
+use fcweb_lib;
 use std::{env, net};
 
 const HELP_MSG: &str = r"fcweb -- a web app for temperature conversions.
@@ -41,8 +41,8 @@ fn main() {
         std::process::exit(1);
     }
     if let CmdLineMode::CustomSocketAddr(addr) = mode {
-        fcweb::webmain(addr).unwrap();
+        fcweb_lib::webmain(addr).unwrap();
     } else {
-        fcweb::webmain("127.0.0.1:8080".parse().unwrap()).unwrap();
+        fcweb_lib::webmain("127.0.0.1:8080".parse().unwrap()).unwrap();
     }
 }

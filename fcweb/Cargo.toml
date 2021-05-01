@@ -15,3 +15,11 @@ askama = "0.10.3"
 askama_actix = "0.11.1"
 serde = { version = "1", features = ["derive"] }
 fc = { path = "../fc" }
+
+[[bin]]
+name = "fcweb"
+path = "fcweb.rs"
+
+[lib]
+name = "fcweb_lib"
+path = "fcweb_lib.rs"

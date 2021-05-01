@@ -1,6 +1,6 @@
 use actix_web::{web, App, HttpServer, Responder};
 use askama_actix::{Template, TemplateIntoResponse};
-use fc;
+use fc_lib;
 use serde::{Deserialize, Serialize};
 use std::net;
 
@@ -8,8 +8,8 @@ use std::net;
 #[template(path = "hello.html", print = "none")]
 pub struct HelloTpl<'a> {
     error: &'a str,
-    input: &'a Option<fc::T>,
-    output: &'a Option<Vec<fc::T>>,
+    input: &'a Option<fc_lib::T>,
+    output: &'a Option<Vec<fc_lib::T>>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -28,13 +28,13 @@ pub async fn hello() -> impl Responder {
 }
 
 pub async fn bye(params: web::Form<TFormData>) -> impl Responder {
-    match fc::parse_str_to_t(&format!(
+    match fc_lib::parse_str_to_t(&format!(
         "{}{}",
         params.value,
         params.unit.as_ref().unwrap_or(&String::from(""))
     )) {
         Ok(t) => {
-            let r = fc::convert(t);
+            let r = fc_lib::convert(t);
             HelloTpl {
                 error: "",
                 input: &Some(t),
