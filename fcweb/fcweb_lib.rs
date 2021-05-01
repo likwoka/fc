@@ -1,4 +1,5 @@
-use actix_web::{web, App, HttpServer, Responder};
+use actix_web::{App, HttpServer, Responder, http::{HeaderName, HeaderValue}, web};
+use actix_service::Service;
 use askama_actix::{Template, TemplateIntoResponse};
 use fc_lib;
 use serde::{Deserialize, Serialize};
@@ -55,14 +56,16 @@ pub async fn bye(params: web::Form<TFormData>) -> impl Responder {
 pub async fn webmain(ipaddr_n_port: net::SocketAddrV4) -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
-            // .wrap_fn(|req, srv| {
-            //     let fut = srv.call(req);
-            //     async {
-            //         let mut res = fut.await?;
-            //         res.headers_mut().insert("Permissions-Policy", "interest-cohort=()");
-            //         Ok(res)
-            //     }
-            // })
+            .wrap_fn(|req, srv| {
+                let fut = srv.call(req);
+                async {
+                    let mut res = fut.await?;
+                    res.headers_mut().insert(
+                        HeaderName::from_static("Permissions-Policy"), 
+                        HeaderValue::from_static("interest-cohort=()"));
+                    Ok(res)
+                }
+            })
             .route("/", web::get().to(hello))
             .route("/", web::post().to(bye))
     })
