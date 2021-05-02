@@ -1,5 +1,8 @@
-use actix_web::{App, HttpServer, Responder, http::{HeaderName, HeaderValue}, web};
 use actix_service::Service;
+use actix_web::{
+    http::{HeaderName, HeaderValue},
+    web, App, HttpServer, Responder,
+};
 use askama_actix::{Template, TemplateIntoResponse};
 use fc_lib;
 use serde::{Deserialize, Serialize};
@@ -42,7 +45,7 @@ pub async fn bye(params: web::Form<TFormData>) -> impl Responder {
                 output: &Some(r),
             }
             .into_response()
-        },
+        }
         Err(e) => HelloTpl {
             error: e.to_str(),
             input: &None,
@@ -61,8 +64,9 @@ pub async fn webmain(ipaddr_n_port: net::SocketAddrV4) -> std::io::Result<()> {
                 async {
                     let mut res = fut.await?;
                     res.headers_mut().insert(
-                        HeaderName::from_static("Permissions-Policy"), 
-                        HeaderValue::from_static("interest-cohort=()"));
+                        HeaderName::from_static("Permissions-Policy"),
+                        HeaderValue::from_static("interest-cohort=()"),
+                    );
                     Ok(res)
                 }
             })
