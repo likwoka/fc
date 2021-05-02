@@ -64,7 +64,7 @@ pub async fn webmain(ipaddr_n_port: net::SocketAddrV4) -> std::io::Result<()> {
                 async {
                     let mut res = fut.await?;
                     res.headers_mut().insert(
-                        HeaderName::from_static("Permissions-Policy"),
+                        HeaderName::from_static("permissions-policy"),
                         HeaderValue::from_static("interest-cohort=()"),
                     );
                     Ok(res)
