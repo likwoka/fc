@@ -1,4 +1,4 @@
-name: Build and run tests on checkin
+name: (rust) Cargo build and run tests on checkin
 
 on:
   push:

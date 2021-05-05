@@ -1,4 +1,4 @@
-name: (rust) Security audit
+name: (rust) Cargo audit nightly
 on:
   schedule:
     - cron: '0 0 * * *'
