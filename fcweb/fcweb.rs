@@ -2,13 +2,14 @@
 //!
 //! A web app for temperature conversions.
 use fcweb_lib;
-use std::{env, net};
+use std::{env, net::{self, Ipv4Addr, SocketAddrV4}};
 
 const HELP_MSG: &str = r"fcweb -- a web app for temperature conversions.
 
 Usage:
 fcweb                    # default to 127.0.0.1:8080
 fcweb 192.168.12.1:8881  # bind webapp to IP address and port
+fcweb -c conf.toml       # use configuration file
 fcweb -h                 # print this help message";
 
 enum CmdLineMode {
@@ -36,13 +37,14 @@ fn parse_cmdline(args: &Vec<String>) -> CmdLineMode {
 
 fn main() {
     let mode = parse_cmdline(&env::args().collect());
-    if let CmdLineMode::PrintMsg(msg) = mode {
-        println!("{}", msg);
-        std::process::exit(1);
-    }
-    if let CmdLineMode::CustomSocketAddr(addr) = mode {
-        fcweb_lib::webmain(addr).unwrap();
-    } else {
-        fcweb_lib::webmain("127.0.0.1:8080".parse().unwrap()).unwrap();
-    }
+    let addr_n_port = match mode {
+        CmdLineMode::PrintMsg(msg) => {
+            println!("{}", msg);
+            std::process::exit(1);
+        },
+        CmdLineMode::CustomSocketAddr(addr) => addr,
+        CmdLineMode::DefaultSocketAddr => SocketAddrV4::new(Ipv4Addr::new(127, 0, 0, 1), 8080)
+    };
+    println!("fcweb listening on {}", addr_n_port);
+    fcweb_lib::webmain(addr_n_port).unwrap();
 }

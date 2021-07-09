@@ -1,10 +1,7 @@
-use actix_service::Service;
-use actix_web::{
-    http::{HeaderName, HeaderValue},
-    web, App, HttpServer, Responder,
-};
+use actix_web::{App, HttpServer, Responder, middleware, web};
 use askama_actix::{Template, TemplateIntoResponse};
 use fc_lib;
+use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use serde::{Deserialize, Serialize};
 use std::net;
 
@@ -57,23 +54,21 @@ pub async fn bye(params: web::Form<TFormData>) -> impl Responder {
 
 #[actix_web::main]
 pub async fn webmain(ipaddr_n_port: net::SocketAddrV4) -> std::io::Result<()> {
+    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+
+    let mut ssl_builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
+    ssl_builder.set_private_key_file("/home/likwoka/keys/testkey.pem", SslFiletype::PEM).unwrap();
+    ssl_builder.set_certificate_chain_file("/home/likwoka/keys/testcert.pem").unwrap();
+
     HttpServer::new(|| {
         App::new()
-            .wrap_fn(|req, srv| {
-                let fut = srv.call(req);
-                async {
-                    let mut res = fut.await?;
-                    res.headers_mut().insert(
-                        HeaderName::from_static("permissions-policy"),
-                        HeaderValue::from_static("interest-cohort=()"),
-                    );
-                    Ok(res)
-                }
-            })
+            .wrap(middleware::DefaultHeaders::new().header("permissions-policy", "interest-cohort=()"))
+            .wrap(middleware::Logger::default())
             .route("/", web::get().to(hello))
             .route("/", web::post().to(bye))
     })
     .bind(ipaddr_n_port)?
+    .bind_openssl("127.0.0.1:8443", ssl_builder)?
     .run()
     .await
 }
