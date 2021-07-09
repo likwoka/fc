@@ -5,6 +5,12 @@
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
+        @media(prefers-color-scheme: light) {
+            body { color: black; background: white; }
+        }
+        @media(prefers-color-scheme: dark) {
+            body { color: white; background: black;}
+        }
         body { display: flex; flex-flow: column wrap; align-items: center; justify-content: center; }
         html { font-size: calc(1em + 4vw); font-family: Helvetica, sans-serif; }
         button, input, select, option { font-size: inherit; font-family: inherit; border-radius: unset; margin-top: 20%; margin-bottom: 0px; }
