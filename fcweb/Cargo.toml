@@ -2,7 +2,7 @@
 name = "fcweb"
 version = "0.4.0"
 authors = ["Alex Li <likwoka@gmail.com>"]
-edition = "2018"
+edition = "2021"
 description = "actix web server side to converts temperature between Fahrenheit and Celsius."
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/likwoka/fc.git"
