@@ -1,5 +1,5 @@
-use actix_web::{App, HttpServer, Responder, middleware, web};
-use askama_actix::{Template, TemplateIntoResponse};
+use actix_web::{middleware, web, App, HttpServer, HttpResponse};
+use askama_actix::{Template, TemplateToResponse};
 use fc_lib;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use serde::{Deserialize, Serialize};
@@ -19,16 +19,15 @@ pub struct TFormData {
     unit: Option<String>,
 }
 
-pub async fn hello() -> impl Responder {
+pub async fn hello() -> HttpResponse {
     HelloTpl {
         error: "",
         input: &None,
         output: &None,
-    }
-    .into_response()
+    }.to_response()
 }
 
-pub async fn bye(params: web::Form<TFormData>) -> impl Responder {
+pub async fn bye(params: web::Form<TFormData>) -> HttpResponse {
     match fc_lib::parse_str_to_t(&format!(
         "{}{}",
         params.value,
@@ -41,14 +40,14 @@ pub async fn bye(params: web::Form<TFormData>) -> impl Responder {
                 input: &Some(t),
                 output: &Some(r),
             }
-            .into_response()
+            .to_response()
         }
         Err(e) => HelloTpl {
             error: e.to_str(),
             input: &None,
             output: &None,
         }
-        .into_response(),
+        .to_response(),
     }
 }
 
@@ -62,7 +61,7 @@ pub async fn webmain(ipaddr_n_port: net::SocketAddrV4) -> std::io::Result<()> {
 
     HttpServer::new(|| {
         App::new()
-            .wrap(middleware::DefaultHeaders::new().header("permissions-policy", "interest-cohort=()"))
+            .wrap(middleware::DefaultHeaders::new().add(("permissions-policy", "interest-cohort=()")))
             .wrap(middleware::Logger::default())
             .route("/", web::get().to(hello))
             .route("/", web::post().to(bye))
