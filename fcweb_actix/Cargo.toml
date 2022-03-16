@@ -1,5 +1,5 @@
 [package]
-name = "fcweb"
+name = "fcweb_actix"
 version = "0.4.0"
 authors = ["Alex Li <likwoka@gmail.com>"]
 edition = "2021"
@@ -21,9 +21,9 @@ serde = { version = "1", features = ["derive"] }
 fc = { path = "../fc" }
 
 [[bin]]
-name = "fcweb"
-path = "fcweb.rs"
+name = "fcweb_actix"
+path = "fcweb_actix.rs"
 
 [lib]
-name = "fcweb_lib"
-path = "fcweb_lib.rs"
+name = "fcweb_actix_lib"
+path = "fcweb_actix_lib.rs"

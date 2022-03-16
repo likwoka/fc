@@ -484,7 +484,7 @@ name = "fc"
 version = "0.4.0"
 
 [[package]]
-name = "fcweb"
+name = "fcweb_actix"
 version = "0.4.0"
 dependencies = [
  "actix-service",
