@@ -10,13 +10,14 @@ repository = "https://github.com/likwoka/fc.git"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-actix-web = { version = "4", features = ["openssl"] }
+#actix-web = { version = "4", features = ["openssl"] }
+actix-web = { version = "4" }
 actix-service = "2"
 askama = "0.11.1"
 askama_actix = "0.13.0"
 env_logger = "0.8"
 log = "0.4"
-openssl = { version = "0.10", features = ["v110"] }
+#openssl = { version = "0.10", features = ["v110"] }
 serde = { version = "1", features = ["derive"] }
 fc = { path = "../fc" }
 

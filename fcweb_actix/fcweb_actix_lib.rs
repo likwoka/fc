@@ -1,7 +1,7 @@
 use actix_web::{middleware, web, App, HttpServer, HttpResponse};
 use askama_actix::{Template, TemplateToResponse};
 use fc_lib;
-use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+//use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use serde::{Deserialize, Serialize};
 use std::net;
 
@@ -55,9 +55,9 @@ pub async fn bye(params: web::Form<TFormData>) -> HttpResponse {
 pub async fn webmain(ipaddr_n_port: net::SocketAddrV4) -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
-    let mut ssl_builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
-    ssl_builder.set_private_key_file("/home/likwoka/keys/testkey.pem", SslFiletype::PEM).unwrap();
-    ssl_builder.set_certificate_chain_file("/home/likwoka/keys/testcert.pem").unwrap();
+    // let mut ssl_builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
+    // ssl_builder.set_private_key_file("/home/likwoka/keys/testkey.pem", SslFiletype::PEM).unwrap();
+    // ssl_builder.set_certificate_chain_file("/home/likwoka/keys/testcert.pem").unwrap();
 
     HttpServer::new(|| {
         App::new()
@@ -67,7 +67,7 @@ pub async fn webmain(ipaddr_n_port: net::SocketAddrV4) -> std::io::Result<()> {
             .route("/", web::post().to(bye))
     })
     .bind(ipaddr_n_port)?
-    .bind_openssl("127.0.0.1:8443", ssl_builder)?
+    // .bind_openssl("127.0.0.1:8443", ssl_builder)?
     .run()
     .await
 }
