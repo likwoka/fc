@@ -1,7 +1,6 @@
 //! fcweb
 //!
 //! A web app for temperature conversions.
-use fcweb_actix_lib;
 use std::{
     env,
     net::{self, Ipv4Addr, SocketAddrV4},

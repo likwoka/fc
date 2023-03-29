@@ -3,8 +3,6 @@
 //! A command line program that converts temperature between Fahrenheit and Celsius.
 use std::env;
 
-use fc_lib;
-
 const HELP_MSG: &str = r"fc -- convert temperature between Fahrenheit and Celsius
 Usage:
 fc 32C   # output: 32C => 89.6F

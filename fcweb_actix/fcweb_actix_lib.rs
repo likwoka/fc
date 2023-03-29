@@ -1,6 +1,5 @@
 use actix_web::{middleware, web, App, HttpResponse, HttpServer};
 use askama_actix::{Template, TemplateToResponse};
-use fc_lib;
 //use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use serde::{Deserialize, Serialize};
 use std::net;

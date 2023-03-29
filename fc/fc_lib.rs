@@ -30,7 +30,7 @@ pub enum T {
 impl T {
     pub fn to_c(&self) -> T {
         match self {
-            T::C(_) => self.clone(),
+            T::C(_) => *self,
             T::F(v) | T::Unknown(v) => T::C(round_to_one_dec((v - 32.0) / 1.8)),
         }
     }
@@ -38,7 +38,7 @@ impl T {
     /// Convert value from c to f.
     pub fn to_f(&self) -> T {
         match self {
-            T::F(_) => self.clone(),
+            T::F(_) => *self,
             T::C(v) | T::Unknown(v) => T::F(round_to_one_dec(v * 1.8 + 32.0)),
         }
     }
@@ -77,16 +77,16 @@ pub fn parse_str_to_t(arg: &str) -> Result<T, FcError> {
     // the last char has to be c, C, f, F, or nothing.
     match arg.chars().last().unwrap() {
         'c' | 'C' => match arg[0..arg.len() - 1].parse::<f32>() {
-            Ok(value) => return Ok(T::C(value)),
-            Err(_) => return Err(FcError::ValueNotANumber),
+            Ok(value) => Ok(T::C(value)),
+            Err(_) => Err(FcError::ValueNotANumber),
         },
         'f' | 'F' => match arg[0..arg.len() - 1].parse::<f32>() {
-            Ok(value) => return Ok(T::F(value)),
-            Err(_) => return Err(FcError::ValueNotANumber),
+            Ok(value) => Ok(T::F(value)),
+            Err(_) => Err(FcError::ValueNotANumber),
         },
-        u if u.is_digit(10) => match arg.parse::<f32>() {
-            Ok(value) => return Ok(T::Unknown(value)),
-            Err(_) => return Err(FcError::ValueNotANumber),
+        u if u.is_ascii_digit() => match arg.parse::<f32>() {
+            Ok(value) => Ok(T::Unknown(value)),
+            Err(_) => Err(FcError::ValueNotANumber),
         },
         _ => Err(FcError::UnitNotRecognized),
     }
