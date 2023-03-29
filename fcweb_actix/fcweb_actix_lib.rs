@@ -1,4 +1,4 @@
-use actix_web::{middleware, web, App, HttpServer, HttpResponse};
+use actix_web::{middleware, web, App, HttpResponse, HttpServer};
 use askama_actix::{Template, TemplateToResponse};
 use fc_lib;
 //use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
@@ -24,7 +24,8 @@ pub async fn hello() -> HttpResponse {
         error: "",
         input: &None,
         output: &None,
-    }.to_response()
+    }
+    .to_response()
 }
 
 pub async fn bye(params: web::Form<TFormData>) -> HttpResponse {
@@ -61,7 +62,9 @@ pub async fn webmain(ipaddr_n_port: net::SocketAddrV4) -> std::io::Result<()> {
 
     HttpServer::new(|| {
         App::new()
-            .wrap(middleware::DefaultHeaders::new().add(("permissions-policy", "interest-cohort=()")))
+            .wrap(
+                middleware::DefaultHeaders::new().add(("permissions-policy", "interest-cohort=()")),
+            )
             .wrap(middleware::Logger::default())
             .route("/", web::get().to(hello))
             .route("/", web::post().to(bye))

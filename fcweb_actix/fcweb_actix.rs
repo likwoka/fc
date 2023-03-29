@@ -2,7 +2,10 @@
 //!
 //! A web app for temperature conversions.
 use fcweb_actix_lib;
-use std::{env, net::{self, Ipv4Addr, SocketAddrV4}};
+use std::{
+    env,
+    net::{self, Ipv4Addr, SocketAddrV4},
+};
 
 const HELP_MSG: &str = r"fcweb -- a web app for temperature conversions.
 
@@ -41,9 +44,9 @@ fn main() {
         CmdLineMode::PrintMsg(msg) => {
             println!("{}", msg);
             std::process::exit(1);
-        },
+        }
         CmdLineMode::CustomSocketAddr(addr) => addr,
-        CmdLineMode::DefaultSocketAddr => SocketAddrV4::new(Ipv4Addr::new(127, 0, 0, 1), 8080)
+        CmdLineMode::DefaultSocketAddr => SocketAddrV4::new(Ipv4Addr::new(127, 0, 0, 1), 8080),
     };
     println!("fcweb listening on {}", addr_n_port);
     fcweb_actix_lib::webmain(addr_n_port).unwrap();
