@@ -98,7 +98,7 @@ pub fn parse_str_to_t(arg: &str) -> Result<T, FcError> {
 /// ```
 /// // returns 1-element vector of T::F(73.4)
 /// fc_lib::convert(fc_lib::T::C(23.0));
-/// // returns 1-element vector of T::C23.0)   
+/// // returns 1-element vector of T::C(23.0)   
 /// fc_lib::convert(fc_lib::T::F(73.4));
 /// // returns 2-element vector of T::F(165.2), T::C(23.3)
 /// fc_lib::convert(fc_lib::T::Unknown(74.0));

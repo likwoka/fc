@@ -27,7 +27,7 @@ pub async fn hello() -> HttpResponse {
     .to_response()
 }
 
-pub async fn bye(params: web::Form<TFormData>) -> HttpResponse {
+pub async fn submit(params: web::Form<TFormData>) -> HttpResponse {
     match fc_lib::parse_str_to_t(&format!(
         "{}{}",
         params.value,
@@ -66,7 +66,7 @@ pub async fn webmain(ipaddr_n_port: net::SocketAddrV4) -> std::io::Result<()> {
             )
             .wrap(middleware::Logger::default())
             .route("/", web::get().to(hello))
-            .route("/", web::post().to(bye))
+            .route("/", web::post().to(submit))
     })
     .bind(ipaddr_n_port)?
     // .bind_openssl("127.0.0.1:8443", ssl_builder)?
