@@ -15,8 +15,8 @@
     cargo run --bin fc 23f
 
 ## To run web (for convenience during development)
-    cargo run --bin fcweb # default to 127.0.0.1:8080
-    cargo run --bin fcweb 127.0.0.1:8081
+    cargo run --bin fcweb_actix # default to 127.0.0.1:8080
+    cargo run --bin fcweb_actix 127.0.0.1:8081
 
 ## Thoughts on rust
 - Preferred coding style nudges you to a very robust application; using tools such as Enum, Option which you to think and cover every branch of logic

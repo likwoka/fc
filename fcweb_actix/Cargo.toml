@@ -11,8 +11,7 @@ repository = "https://github.com/likwoka/fc.git"
 
 [dependencies]
 actix-web = { version = "4.3.1", features = ["openssl"] }
-#actix-web = { version = "4" }
-#actix-service = "2"
+h2 = "0.3.17"
 askama = "0.12"
 askama_actix = "0.14.0"
 env_logger = "0.10"
