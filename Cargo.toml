@@ -1,2 +1,3 @@
 [workspace]
-members = ["fc", "fcweb_actix"]
+members = ["fc", "fcweb_actix"] #, "fcweb_axum"]
+resolver = "3"

@@ -2,7 +2,7 @@
 name = "fcweb_actix"
 version = "0.4.0"
 authors = ["Alex Li <likwoka@gmail.com>"]
-edition = "2021"
+edition = "2024"
 description = "actix web server side to converts temperature between Fahrenheit and Celsius."
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/likwoka/fc.git"
@@ -10,11 +10,11 @@ repository = "https://github.com/likwoka/fc.git"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-actix-web = { version = "4.3.1", features = ["openssl"] }
+actix-web = { version = "4.11", features = ["openssl"] }
 h2 = "0.3.17"
 askama = "0.12"
 askama_actix = "0.14.0"
-env_logger = "0.10"
+env_logger = "0.11"
 log = "0.4"
 openssl = { version = "0.10", features = ["v110"] }
 serde = { version = "1", features = ["derive"] }
